@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>WiFi Config</title>
+  <style>
+  body {margin: 3%;background-color: lightblue;}
+  .h {font-family: Helvetica;text-align: center;margin-bottom: -20px;}
+  .p {font-family: Helvetica;}
+  .wrong {color: red;font-size: 20px;}
+  .radios {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/
+  margin-bottom: 12px;  /* vertical padding between buttons */
+  margin-left: 5px;   /* left padding */
+  cursor: pointer;font-family: Helvetica;font-size: 22px;}
+  .radios input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
+  .checkmark {position: absolute;top: 0;left: 0;height: 25px;width: 25px;background-color: #eee;border-radius: 50%; }   /* Create a custom radio button */
+  .radios:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
+  .radios input:checked ~ .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
+  .checkmark:after {content: '';position: absolute;display: none;} /* Create the indicator (the dot/circle - hidden when not checked) */
+  .radios input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
+  .radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
+  .connect {background-color: #4CAF50;border: none;color: white;padding: 16px 32px;text-decoration: none;text-align: center;width: 80%;margin: 4px 2%;cursor: pointer;}
+  /*Advanced CSS*/
+  .h3 {font-family: Helvetica;}
+  .slider-wrapper input, input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;}
+</style>
+</head>
+<body>
+
+    <h1 class='h'>Advanced Settings</h1>
+    <br>
+    <p class='p'>Careful about what you change...</p>
+    <br>
+      
+    <form action='/submit_advanced'>
+      <hr/>
+      <p class='h3'>This device(apostrophe)s current name is {device_name}</p>
+      <label for='dev_name' class='p'>Enter new device name below (100 characters maximum):</label><br>
+        <input type='text' id='dev_name' name='dev_name' maxlength='100' placeholder='Enter new device name'>
+          
+        <br><br><hr/><br>
+          
+        <input type='checkbox' id='big_text' name='big_text' checked>
+        <label class='p' for='big_text'>Enable large text?</label>
+          
+        <br><br><hr/><br>
+          
+        <div class='slider-wrapper'>
+          <label for='timeout' class='h3'>Portal timeout time in minutes: <span id='t_val'></span></label>
+            <br>
+          <input type='range' id='timeout' name='timeout' min='0.5' max='10' value='1' size='900' step='0.5' data-show-value='true'>
+        </div>
+          
+        <script>
+      var slider = document.getElementById('timeout');
+      var output = document.getElementById('t_val');
+      output.innerHTML = slider.value;
+      
+      slider.oninput = function() {
+          output.innerHTML = this.value;
+      }
+      </script>
+      
+        <br><br><hr/><br>
+        <input type='submit' value='Save Settings'>
+         
+    </form>
+      
+    <br><br><hr/><br>
+      
+    <form action='/forget_current_wifi'>
+      <input type='submit' value='Forget Current Network'>
+    </form>
+    </body>
+    </html>
+    

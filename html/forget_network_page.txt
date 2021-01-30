@@ -1,0 +1,7 @@
+<br><br><br>
+<form action="/forget">
+    <label class="p" for="captcha">Enter the numbers below to delete the current network settings:</label><br>
+    <label class="p" for="captcha">{random 2-digit number}</label><br>
+	<input type="text" id="captcha" name="captcha">
+	<input type='submit' value='Forget Current Network'>
+</form>

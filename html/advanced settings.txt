@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    <title>WiFi Config</title>
+	<style>
+    
+    body {margin: 3%;background-color: lightblue;}
+
+    .h {font-family: Helvetica;text-align: center;margin-bottom: -20px;}
+    
+    .p {font-family: Helvetica;}
+    
+    .wrong {color: red;font-size: 20px;}
+    
+    /* replace below for main page */
+    
+    /*
+    .slider-wrapper {
+    	display: inline-block;
+  		width: 80%;
+  		height: 150px;
+  		padding-left: 10%;
+	}*/
+	
+	.h3 {font-family: Helvetica;}
+    
+    .slider-wrapper input, input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;}
+}
+</style>
+</head>
+<body>
+
+<h1 class='h'>Advanced Settings</h1>
+<br>
+<p class='p'>Careful about what you change...</p>
+<br>
+
+<form action='/submit_advanced'>
+	
+    <hr/>
+  	<p class='h3'>This device(apostrophe)s current name is {device_name}</p>
+	<label for='dev_name' class='p'>Enter new device name below (100 characters maximum):</label><br>
+    <input type='text' id='dev_name' name='dev_name' maxlength='100' placeholder='Enter new device name'>
+    
+    <br><br><hr/><br>
+    
+    <input type='checkbox' id='big_text' name='big_text' checked>
+    <label class='p' for='big_text'>Enable large text?</label>
+    
+    <br><br><hr/><br>
+    
+    <div class='slider-wrapper'>
+    	<label for='timeout' class='h3'>Portal timeout time in minutes: <span id='t_val'></span></label>
+        <br>
+    	<input type='range' id='timeout' name='timeout' min='0.5' max='10' value='1' size='900' step='0.5' data-show-value='true'>
+    </div>
+    
+    <script>
+	var slider = document.getElementById('timeout');
+	var output = document.getElementById('t_val');
+	output.innerHTML = slider.value;
+
+	slider.oninput = function() {
+  		output.innerHTML = this.value;
+	}
+	</script>
+
+    <br><br><hr/><br>
+    <input type='submit' value='Save Settings'>
+    
+    
+</form>
+
+<br><br><hr/><br>
+
+<form action='/forget_current_wifi'>
+	<input type='submit' value='Forget Current Network'>
+</form>
+</body>
+</html>
