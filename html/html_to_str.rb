@@ -23,6 +23,7 @@
 $filename = "../CaptivePortal/test config page.html"
 $file_out = "str_out.txt"
 keep_shape = true # keep shape of html document? i.e. reinsert the whitespace at the begining of each line?
+$file_buffer = ""
 
 def trim_tail string
   i = 1
@@ -31,8 +32,6 @@ def trim_tail string
   end
   string[1..-i]
 end
-
-$file = ""
 
 def include_tabs line
   # used to create the initial string for parse_line
@@ -51,7 +50,7 @@ def parse_line line
   str_out = include_tabs(line)
   parts = line.match /(?:^\s*)(?<line>.*)(?<comment>\/\*.*\*\/)/
   if parts != nil
-    str_out += trimmed_and_stringed(part[:line]) + parts[:comment]
+    str_out += trimmed_and_stringed(part[:line]) + "\t" + parts[:comment]
   else
     str_out += trimmed_and_stringed(line)
   end
@@ -61,9 +60,13 @@ end
 def load_file(filename = $filename)
   File.open(filename, "r") do |html_file|
     html_file.each do |line|
-      $file.append(line)
+      $file_buffer.append(line)
     end
   end
+end
+
+def save_file(file_out = $file_out)
+  File.open(file_out, "w") { |file| file.write $file_buffer }
 end
 
 load_file
