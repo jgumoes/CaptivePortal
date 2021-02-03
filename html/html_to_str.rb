@@ -22,12 +22,12 @@
 
 $filename = "test config page.html"
 $file_out = "str_out.txt"
-keep_shape = true # keep shape of html document? i.e. reinsert the whitespace at the begining of each line?
+$keep_shape = true # keep shape of html document? i.e. reinsert the whitespace at the begining of each line?
 $file_buffer = ""
 
 def include_tabs line
   # used to create the initial string for parse_line
-  if keep_shape == true
+  if $keep_shape == true
     return line.match(/(?<tabs>^\s*)/)[:tabs]
   else
     return ""
