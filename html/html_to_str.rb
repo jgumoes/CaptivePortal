@@ -20,7 +20,7 @@
 #   -file_out                     the output file to write to. set to
 #                                 str_out.txt by default
 
-$filename = "test config page.html"
+$filename = "simple config page.html"
 $file_out = "str_out.txt"
 $keep_shape = true # keep shape of html document? i.e. reinsert the whitespace at the begining of each line?
 $file_buffer = ""
@@ -35,25 +35,25 @@ def include_tabs line
 end
 
 def trimmed_and_stringed string
-  return "\"#{string.lstrip}\""
+  return "\"#{string.lstrip.rstrip}\""
 end
 
 def parse_line line
   str_out = include_tabs(line)
   parts = line.match /(?:^\s*)(?<line>.*)(?<comment>\/\*.*\*\/)/
-  if parts != nil
-    str_out += trimmed_and_stringed(part[:line]) + "\t" + parts[:comment]
+  if parts != nil 
+    str_out += trimmed_and_stringed(parts[:line]) + "\t" + parts[:comment]
   else
     str_out += trimmed_and_stringed(line)
   end
-  str_out
+  str_out + "\n"
 end
 
 def load_file(filename = $filename)
   if File.exists?(filename)
     File.open(filename, "r") do |html_file|
       html_file.each do |line|
-        $file_buffer.append(line)
+        $file_buffer += parse_line(line)
       end
     end
   end
@@ -64,3 +64,4 @@ def save_file(file_out = $file_out)
 end
 
 load_file
+save_file

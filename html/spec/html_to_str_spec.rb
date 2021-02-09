@@ -35,3 +35,45 @@ describe 'include_tabs' do
     expect(include_tabs(test_string)).to eq ""
   end
 end
+
+describe "trimmed_and_stringed" do
+  
+  result_string = '"margin-bottom: 12px;"'
+  it "quotes the string" do 
+    test_string = "margin-bottom: 12px;"
+    expect(trimmed_and_stringed(test_string)).to eq result_string
+  end
+
+  it "trims and quotes the string" do 
+    test_string = "   margin-bottom: 12px;      "
+    expect(trimmed_and_stringed(test_string)).to eq result_string
+  end
+
+end
+
+describe "parse_line" do
+  
+  it "parses a tabbed and commented string" do
+    test_string = "  margin-bottom: 12px;  /* vertical padding between buttons */"
+    result_string = "  \"margin-bottom: 12px;\"\t/* vertical padding between buttons */" + "\n"
+    expect(parse_line(test_string)).to eq result_string
+  end
+
+  it "parses a tabbed uncommented string"do
+    test_string = "  cursor: pointer;font-family: Helvetica;font-size: 22px;}"
+    result_string = '  "cursor: pointer;font-family: Helvetica;font-size: 22px;}"' + "\n"
+    expect(parse_line(test_string)).to eq result_string
+  end
+
+  it "parses an un-indented string" do
+    test_string = "<!DOCTYPE html>"
+    result_string = '"<!DOCTYPE html>"' + "\n"
+    expect(parse_line(test_string)).to eq result_string
+  end
+
+  it "does nothing to an indented comment" do
+    test_string = "  /*Advanced CSS*/"
+    expect(parse_line(test_string)).to eq test_string + "\n"
+  end
+end
+
