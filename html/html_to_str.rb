@@ -35,16 +35,23 @@ def include_tabs line
 end
 
 def trimmed_and_stringed string
-  return "\"#{string.lstrip.rstrip}\""
+  return "\"#{string.lstrip.rstrip}\"" unless string == nil
+  ""
 end
 
 def parse_line line
+  return "\n" if line == ""
   str_out = include_tabs(line)
-  parts = line.match /(?:^\s*)(?<line>.*)(?<comment>\/\*.*\*\/)/
-  if parts != nil 
-    str_out += trimmed_and_stringed(parts[:line]) + "\t" + parts[:comment]
-  else
-    str_out += trimmed_and_stringed(line)
+  parts = line.match /(?:\A\s*)(?<html>\S.*[}>;\s])?(?<comment>(\/\*.*\*\/?)|\z)\z/
+  puts "failing string #{line}" if parts == nil
+  if parts[:html] != nil
+    str_out += trimmed_and_stringed(parts[:html])
+  end
+  if parts[:html] != nil and parts[:comment] != ""
+    str_out += "\t"
+  end
+  if parts[:comment] != ""
+    str_out += parts[:comment]
   end
   str_out + "\n"
 end
@@ -53,7 +60,7 @@ def load_file(filename = $filename)
   if File.exists?(filename)
     File.open(filename, "r") do |html_file|
       html_file.each do |line|
-        $file_buffer += parse_line(line)
+        $file_buffer += parse_line(line.chomp.to_s)
       end
     end
   end

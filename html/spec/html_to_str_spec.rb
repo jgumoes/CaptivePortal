@@ -59,6 +59,12 @@ describe "parse_line" do
     expect(parse_line(test_string)).to eq result_string
   end
 
+  it "parses a different tabbed and commented string" do
+    test_string = ".radios {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/"
+    result_string = "\".radios {display: block;position: relative;padding-left: 35px;\"\t/*padding for the radio button labels*/" + "\n"
+    expect(parse_line(test_string)).to eq result_string
+  end
+
   it "parses a tabbed uncommented string"do
     test_string = "  cursor: pointer;font-family: Helvetica;font-size: 22px;}"
     result_string = '  "cursor: pointer;font-family: Helvetica;font-size: 22px;}"' + "\n"
@@ -74,6 +80,16 @@ describe "parse_line" do
   it "does nothing to an indented comment" do
     test_string = "  /*Advanced CSS*/"
     expect(parse_line(test_string)).to eq test_string + "\n"
+  end
+
+  it "parses an un-indented string with a comment" do
+    test_string = "<!DOCTYPE html>  /*Advanced CSS*/"
+    result_string = "\"<!DOCTYPE html>\"\t/*Advanced CSS*/"
+    expect(parse_line(test_string)).to eq result_string + "\n"
+  end
+
+  it "returns a single line when passed an empty string" do
+    expect(parse_line("")).to eq ""
   end
 end
 
