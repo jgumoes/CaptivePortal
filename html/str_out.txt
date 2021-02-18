@@ -1,0 +1,77 @@
+"<!DOCTYPE html>"
+"<html>"
+  "<head>"
+    
+  "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+    "<title>WiFi Config</title>"
+  "<style>"
+  "body {margin: 3%;background-color: lightblue;}"
+  ".h {font-family: Helvetica;text-align: center;margin-bottom: -20px;}"
+  ".p {font-family: Helvetica;}"
+  ".wrong {margin-left: 10%;font-family: Helvetica;color:red;font-size: 20px;}"
+  ".radios {display: block;position: relative;padding-left: 35px;"	/*padding for the radio button labels*/
+  "margin-bottom: 12px;"	/* vertical padding between buttons */
+  "margin-left: 5px;"	/* left padding */
+  "cursor: pointer;font-family: Helvetica;font-size: 22px;}"
+  ".radios input {position: absolute;opacity: 0;cursor: pointer;}"	/* Hide the browser's default radio button */
+  ".checkmark {position: absolute;top: 0;left: 0;height: 25px;width: 25px;background-color: #eee;border-radius: 50%; }"	/* Create a custom radio button */
+  ".radios:hover input ~ .checkmark {background-color: #ccc;}"	/* On mouse-over, add a grey background color */
+  ".radios input:checked ~ .checkmark {background-color: #2196F3;}"	/* When the radio button is checked, add a blue background */
+  ".checkmark:after {content: '';position: absolute;display: none;}"	/* Create the indicator (the dot/circle - hidden when not checked) */
+  ".radios input:checked ~ .checkmark:after {display: block;}"	/* Show the indicator (dot/circle) when checked */
+  ".radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}"	/* Style the indicator (dot/circle) */
+  ".connect {letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;background-color: #4CAF50;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}"
+  /*Advanced CSS*/
+  ".h3 {font-family: Helvetica;}"
+  "input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;}"
+  ".SubName {margin-top: 10px;}"
+  ".NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;font-family: Helvetica;margin-top: -5px;margin-bottom: -10px;}"
+"</style>"
+"</head>"
+"<body>"
+
+"<h1 class='h'>WiFi Config</h1>"
+"<br>"
+"<p class='p'>This device is called {Device Name}<br>"
+  "<b class='NameChange'>Device name changed to <em>Butt's Mcgee</em></b>"
+  "<br>You are {not }connected to {access_point / any network}</p>"
+
+"<form action='/wifisave'>"
+  	"<h3 class='h'>Available Networks:</h3>"
+    "<h4 class='h'>(refresh if any are missing)</h4>"
+	"<br><br>"
+	
+    	"<label class='radios'>{SSID1}"
+  			"<input type='radio' name='radio' value='{SSID1}'>"
+        	"<span class='checkmark'></span>"
+        "</label>"
+        
+        "<label class='radios'>{SSID2}"
+  			"<input type='radio' name='radio' value='{SSID2}'>"
+        	"<span class='checkmark'></span>"
+        "</label>"
+        
+    "<br>"
+    "<div class='password'>"
+        "<h3 class='h' for='pwd'>Enter Password:</h3><br>"
+        "<label for='pwd' class=wrong>Wrong password</label><br>"
+        "<input type='text' id='pwd' name='pwd'>"
+    "</div>"
+    "<br>"
+    
+    "<input type='submit' class='connect' value='Connect'>"
+    
+"</form>"
+
+"<form action='/change_name'>"
+  "<hr/>"
+  "<p class='h3'>Change device name from <b>Butt's McGee</b>?</p>"
+  "<label for='dev_name' class='p'>Enter new device name below (100 characters maximum):</label><br>"
+  "<input type='text' id='dev_name' name='dev_name' maxlength='100' placeholder='Enter new device name'>"
+  "<br>"
+  "<input type='submit' class='SubName' value='Save New Name'>"
+"</form>"
+"<br><br>"
+
+"</body>"
+"</html>"
