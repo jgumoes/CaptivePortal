@@ -5,14 +5,17 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>WiFi Config</title>
     <style>
+      * {font-family: Helvetica;}
+
       body {margin: 3%;background-color: lightblue;}
-      .h {font-family: Helvetica;text-align: center;margin-bottom: -20px;}
-      .p {font-family: Helvetica;}
-      .wrong {margin-left: 10%;font-family: Helvetica;color:red;font-size: 20px;}
+      .h {text-align: center;margin-bottom: -20px;}
+
+      .wrong {margin-left: 10%;color:red;font-size: 20px;}
       .radios {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/
-      margin-bottom: 12px;  /* vertical padding between buttons */
-      margin-left: 5px;   /* left padding */
-      cursor: pointer;font-family: Helvetica;font-size: 22px;}
+        margin-bottom: 12px;  /* vertical padding between buttons */
+        margin-left: 5px;   /* left padding */
+        cursor: pointer;font-size: 22px;}
+
       .radios input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
       .checkmark {position: absolute;top: 0;left: 0;height: 25px;width: 25px;background-color: #eee;border-radius: 50%; }   /* Create a custom radio button */
       .radios:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
@@ -21,22 +24,33 @@
       .radios input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
       .radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
       .connect {letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;background-color: #4CAF50;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
-      /*Advanced CSS*/
-      .h3 {font-family: Helvetica;}
-      input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;}
+
+      .namechange_label_container { 
+        margin-right:auto;display: inline-block;}
+      .namechange_label {text-align: right; display: inline-block; max-width: 215px; float: right;}
+      .enter_name{float:left;}
+      @media only screen and (max-width: 440px) {
+        .namechange_label_container{max-width: 215px}
+        /* .enter_name{float:ri;} */
+      }
+
+
+      /* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
+      #pwd, #dev_name {width: 80%;margin-left: 10%;margin-top: 10px;}
+
       .SubName {margin-top: 10px;}
-      .NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;font-family: Helvetica;margin-top: -5px;margin-bottom: -10px;}
+      .NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
     </style>
   </head>
-<body>
+<body style='max-width: 580px; margin-left:auto;margin-right:auto;'>
 
 <h1 class='h'>WiFi Config</h1>
 <br>
-<?% @device_name_change %>
-  <p class='p'>
-  You are <%= @connection_status %></p>
+<p class='p'>
+  <div style='text-align:center;'><%= @device_name_change %></div>
+    You are <%= @connection_status %></p>
 
-<form action='/wifisave'>
+<form action='/wifisave' method=post>
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
 	<br><br>
@@ -47,7 +61,8 @@
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
         <%= @wrong_password %>
-        <input type='text' id='pwd' name='pwd'>
+        <input type='password' id='pwd' name='pwd'><br><br>
+        <input type="checkbox" onclick="show_password()">Show Password
     </div>
     <br>
     
@@ -55,15 +70,30 @@
     
 </form>
 
-<form action='/change_name'>
+<form action='/change_name' method=post>
   <hr/>
   <p class='h3'>Change device name from <b><%= @vars.device_name %></b>?</p>
-  <label for='dev_name' class='p'>Enter new device name below (100 characters maximum):</label><br>
+  <div class='p'>
+    <div class='namechange_label_container'>
+      <span class='namechange_label enter_name'>Enter new device name below</span>
+      <span class='namechange_label'>&nbsp(100 characters maximum):</span>
+    </div>
+  </div>
   <input type='text' id='dev_name' name='dev_name' maxlength='100' placeholder='Enter new device name'>
   <br>
   <input type='submit' class='SubName' value='Save New Name'>
 </form>
 <br><br>
 
+<script>
+function show_password() {
+  var x = document.getElementById("pwd");
+  if (x.type === "password") {
+    x.type = "text";
+  } else {
+    x.type = "password";
+  }
+}
+</script>
 </body>
 </html>
