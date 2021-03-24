@@ -62,7 +62,14 @@
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
         <%= @wrong_password %>
         <input type='password' id='pwd' name='pwd'><br><br>
-        <input type="checkbox" onclick="show_password()">Show Password
+        <div>
+          <div style='display:inline-block;'>
+            <input type="checkbox" id='checkbox' onclick="show_password()">
+          </div>
+          <div style='display:inline-block;' onclick="show_password()">
+            Show Password
+          </div>
+        </div>
     </div>
     <br>
     
@@ -89,8 +96,10 @@
 function show_password() {
   var x = document.getElementById("pwd");
   if (x.type === "password") {
+    document.getElementById("checkbox").checked = false;
     x.type = "text";
   } else {
+    document.getElementById("checkbox").checked = true;
     x.type = "password";
   }
 }
