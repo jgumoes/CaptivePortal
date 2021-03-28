@@ -109,9 +109,7 @@ function fillNetworkList(data){
   if(ssids.length === 0){
     ssids = ["No Networks Found"]
     disabled = `disabled=true `
-    var connectButton = document.getElementById('connectButton')
-    connectButton.disabled = true;
-    connectButton.style.background = '#bdbdbd'
+    disableConnectButton();
   }
 
   for (ssid of ssids){
@@ -126,6 +124,14 @@ function fillNetworkList(data){
     // console.log(html);
     networkDiv.insertAdjacentHTML("afterbegin", html)
   }
+}
+
+function disableConnectButton(){
+  var connectButton = document.getElementById('connectButton')
+  connectButton.disabled = true;
+  // connectButton.input = 'button'
+  connectButton.style.background = '#bdbdbd';
+  // connectButton.onclick = () => {window.confirm("There aren't any networks to connect to!")}
 }
 
 getNetworkList();
