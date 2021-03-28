@@ -1,7 +1,22 @@
 # require 'sinatra'
 require 'sinatra/base'
-require_relative 'libs/ServerVariables'
 require_relative 'libs/functions'
+
+class ServerStatus
+  attr_accessor :device_name, :network_name, :wrong_pass, :name_change
+
+  def initialize
+    @device_name = "Butt's McGee"
+    @network_name = false
+    @wrong_pass = false
+    @name_change = false
+  end
+
+  def resetFlags
+    @wrong_pass = false
+    @name_change = false
+  end
+end
 
 class Portal < Sinatra::Base
 
@@ -11,47 +26,63 @@ class Portal < Sinatra::Base
                             :secret => 'your_secret'
     
   # before (:all) do
-  #   @vars = ServerVariables.create()
-  #   session[:vars] = @vars
+  #   @flags = ServerVariables.create()
+  #   session[:flags] = @flags
   # end
 
   get "/" do
-    @vars = session['vars']
-    # puts session.keys
-    if @vars == nil
-      @vars = ServerVariables.new()
-      session['vars'] = @vars
+    @flags = session['flags'] # this will actually be stored as a global variable
+    if @flags == nil
+      # this won't be necessary because flags will be stored as a global variable
+      @flags = ServerStatus.new()
+      session['flags'] = @flags
     end
-    # p @vars
-    # @vars = ServerVariables.instance()
-    @vars.set_networks(empty=false)
     
-    @device_name_change = device_name_change(@vars)
+    
+    # these statements mock the String processor in ESPAsyncWebServer
+    if @flags.name_change
+      @device_name_change = "<b class='NameChange'>Device name changed to <em>#{vars.device_name}</em></b><br>"
+    else
+      @device_name_change = ""
+    end
 
-    @connection_status = connection_status(@vars)
-    @wrong_password = wrong_password?(@vars)
-    @wifi_ssid = scan_networks(@vars)
+    if @flags.network_name == false
+      @connection_status = "not connected to a network"
+    else
+      @connection_status = "connected to #{@flags.network_name}"
+    end
+
+    if @flags.wrong_pass
+      @wrong_password = "<label for='pwd' class=wrong>Wrong password</label><br>"
+    else
+      @wrong_password = ""
+    end
+
+    @device_name = @flags.device_name
+
+
+    # @wifi_ssid = scan_networks(@flags)
 
     # reset flags
-    @vars.reset
+    @flags.resetFlags()
 
-    erb :index
+    erb :"config.html"
   end
 
   post "/wifisave" do
-    # @vars = ServerVariables.instance
-    # p @vars
+    # @flags = ServerVariables.instance
+    # p @flags
     # p session
-    @vars = session['vars']
+    @flags = session['flags']
     puts session.keys
-    @vars.check_network(params['ssid'], params['pwd'])
+    @flags.check_network(params['ssid'], params['pwd'])
     redirect "/"
   end
 
   post "/change_name" do
-    @vars = session['vars']
-    @vars.device_name = params['dev_name']
-    @vars.new_name = true
+    @flags = session['flags']
+    @flags.device_name = params['dev_name']
+    @flags.new_name = true
     redirect '/'
   end
 

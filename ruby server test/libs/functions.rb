@@ -4,28 +4,6 @@
 # the same as they will in C (the obvious exception)
 # being the ServerVariables class
 
-
-def device_name_change vars
-  if vars.new_name
-    vars.new_name = false
-    return "<b class='NameChange'>Device name changed to <em>#{vars.device_name}</em></b><br>"
-  end
-end
-
-def connection_status vars
-  if vars.network_name.empty?
-    return "not connected to a network"
-  else
-    return "connected to #{vars.network_name}"
-  end
-end
-
-def wrong_password? vars
-  if vars.wrong_pass
-    return "<label for='pwd' class=wrong>Wrong password</label><br>"
-  end
-end
-
 def scan_networks (vars)
   last_ssid = @vars.last_ssid
   networks = vars.networks
