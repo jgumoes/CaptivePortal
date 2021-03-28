@@ -1,6 +1,5 @@
 # require 'sinatra'
 require 'sinatra/base'
-require_relative 'libs/functions'
 
 class ServerStatus
   attr_accessor :device_name, :network_name, :wrong_pass, :name_change
@@ -88,9 +87,14 @@ class Portal < Sinatra::Base
 
   get "/scan_networks" do
     content_type 'application/json'
-    JSON.generate({ "network_list" => ["FBI Van number 2", "Stupid Starbucks", "Uncle Touchy\'s Mystery Van"]})
+    JSON.generate({ "network_list" => scan_networks(true)})
   end
 
   # start the server if ruby file executed directly
   run! if app_file == $0
+end
+
+def scan_networks(empty=false)
+  return [] if empty
+  ["FBI Van number 2", "Stupid Starbucks", "Uncle Touchy\'s Mystery Van"]
 end

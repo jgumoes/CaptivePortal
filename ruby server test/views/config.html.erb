@@ -75,7 +75,7 @@
     </div>
     <br>
     
-    <input type='submit' class='connect' value='Connect'>
+    <input id='connectButton' type='submit' class='connect' value='Connect'>
     
 </form>
 
@@ -102,18 +102,28 @@ async function getNetworkList(){
 }
 
 function fillNetworkList(data){
+  console.log('ssids: ' + data);
   var networkDiv = document.getElementById('network_list')
   var ssids = data.network_list
+  var disabled = ``
+  if(ssids.length === 0){
+    ssids = ["No Networks Found"]
+    disabled = `disabled=true `
+    var connectButton = document.getElementById('connectButton')
+    connectButton.disabled = true;
+    connectButton.style.background = '#bdbdbd'
+  }
+
   for (ssid of ssids){
     console.log('ssid: ' + ssid);
     html = `<label class='radios'>${ssid}` +
-      `<input type='radio' name='ssid' value=\"${ssid}\"` +
+      `<input type='radio' name='ssid' value=\"${ssid}\" ` +
       // if ssid == last_ssid then page += 'checked="true"' end
-      // if networks.empty? then page += 'disabled' end
+      disabled +
       `required>` +
       `<span class='checkmark'></span>` +
     `</label>`
-    console.log(html);
+    // console.log(html);
     networkDiv.insertAdjacentHTML("afterbegin", html)
   }
 }
