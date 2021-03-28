@@ -86,6 +86,11 @@ class Portal < Sinatra::Base
     redirect '/'
   end
 
+  get "/scan_networks" do
+    content_type 'application/json'
+    JSON.generate({ "network_list" => ["FBI Van number 2", "Stupid Starbucks", "Uncle Touchy\'s Mystery Van"]})
+  end
+
   # start the server if ruby file executed directly
   run! if app_file == $0
 end

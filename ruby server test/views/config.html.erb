@@ -54,8 +54,10 @@
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
 	<br><br>
-	
+
+    <div id="network_list">
     	<%= @wifi_ssid %>
+    </div>
         
     <br>
     <div class='password'>
@@ -93,6 +95,31 @@
 <br><br>
 
 <script>
+async function getNetworkList(){
+  fetch('http://localhost:9393/scan_networks', {method: 'GET'})
+  .then(result => result.json())
+  .then(data => fillNetworkList(data))
+}
+
+function fillNetworkList(data){
+  var networkDiv = document.getElementById('network_list')
+  var ssids = data.network_list
+  for (ssid of ssids){
+    console.log('ssid: ' + ssid);
+    html = `<label class='radios'>${ssid}` +
+      `<input type='radio' name='ssid' value=\"${ssid}\"` +
+      // if ssid == last_ssid then page += 'checked="true"' end
+      // if networks.empty? then page += 'disabled' end
+      `required>` +
+      `<span class='checkmark'></span>` +
+    `</label>`
+    console.log(html);
+    networkDiv.insertAdjacentHTML("afterbegin", html)
+  }
+}
+
+getNetworkList();
+
 function show_password() {
   var x = document.getElementById("pwd");
   if (x.type === "password") {
