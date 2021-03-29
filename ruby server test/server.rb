@@ -27,10 +27,6 @@ class Portal < Sinatra::Base
     puts ("new flag")
     sessions['flags'] = nil
   end
-  # before (:all) do
-  #   @flags = ServerVariables.create()
-  #   session[:flags] = @flags
-  # end
 
   get "/" do
     @flags = session['flags'] # this will actually be stored as a global variable
@@ -95,15 +91,6 @@ class Portal < Sinatra::Base
     redirect '/'
   end
 
-  get "/scan_networks" do
-    @flags = session['flags']
-    puts @flags.attempted_network
-    content_type 'application/json'
-    JSON.generate({
-      "network_list" => scan_networks(),
-      "attempted_network" => @flags.attempted_network,
-      })
-  end
 
   # start the server if ruby file executed directly
   run! if app_file == $0

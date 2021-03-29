@@ -95,49 +95,6 @@
 <br><br>
 
 <script>
-async function getNetworkList(){
-  fetch('/scan_networks', {method: 'GET'})
-  .then(result => result.json())
-  .then(data => fillNetworkList(data))
-}
-
-function fillNetworkList(data){
-  console.log('ssids: ' + data);
-  var networkDiv = document.getElementById('network_list')
-  var ssids = data.network_list
-  var disabled = ``
-  if(ssids.length === 0){
-    ssids = ["No Networks Found"]
-    disabled = `disabled=true `
-    disableConnectButton();
-  }
-
-  for (ssid of ssids){
-    console.log('ssid: ' + ssid);
-    html = `<label class='radios'>${ssid}` +
-      `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
-      // if ssid == last_ssid then page += 'checked="true"' end
-      disabled +
-      `required>` +
-      `<span class='checkmark'></span>` +
-    `</label>`
-    // console.log(html);
-    networkDiv.insertAdjacentHTML("afterbegin", html)
-  }
-
-  var attempted_network = data.attempted_network
-  document.getElementById(attempted_network).checked = true
-}
-
-function disableConnectButton(){
-  var connectButton = document.getElementById('connectButton')
-  connectButton.disabled = true;
-  // connectButton.input = 'button'
-  connectButton.style.background = '#bdbdbd';
-  // connectButton.onclick = () => {window.confirm("There aren't any networks to connect to!")}
-}
-
-// getNetworkList();
 
 function show_password() {
   var x = document.getElementById("pwd");
