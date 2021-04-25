@@ -48,7 +48,7 @@
 <br>
 <p class='p'>
   <div style='text-align:center;'><span id=device_name_change /></div>
-    You are <%= @connection_status %></p>
+    You are <span id=connection_status></span></p>
 
 <form action='/wifisave' method=post>
   	<h3 class='h'>Available Networks:</h3>
@@ -115,10 +115,22 @@
     deviceNameSpan.innerText = deviceName;
   }
 
+  function fillConnectionStatus(flags){
+    const {networkName} = flags;
+    var connectionStatusSpan = document.getElementById('connection_status')
+    if (!networkName){
+      connectionStatusSpan.innerText = "not connected to a network"
+    }
+    else{
+      connectionStatusSpan.innerText = `connected to ${networkName}`
+    }
+  }
+
   function fillFlaggedElements(flags){
     console.log(flags);
     fillDeviceName(flags)
     fillNameChange(flags)
+    fillConnectionStatus(flags)
   }
 
   getServerFlags();

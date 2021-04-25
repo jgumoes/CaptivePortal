@@ -41,24 +41,13 @@ class Portal < Sinatra::Base
       @flags = ServerStatus.new()
       session['flags'] = @flags
     end
-
-    puts "has name changed?", @flags.name_change
-    
     
     # these statements mock the String processor in ESPAsyncWebServer
-    if @flags.network_name == false
-      @connection_status = "not connected to a network"
-    else
-      @connection_status = "connected to #{@flags.network_name}"
-    end
-
     if @flags.wrong_pass
       @wrong_password = "<label for='pwd' class=wrong>Wrong password</label><br>"
     else
       @wrong_password = ""
     end
-
-    @device_name = @flags.device_name
 
     # @wifi_ssid_list = build_network_list(scan_networks(), @flags.attempted_network )
 
@@ -105,10 +94,9 @@ class Portal < Sinatra::Base
     puts @flags.device_name
     flagJSON = JSON.generate({
       "deviceName" => @flags.device_name,
-      "network_name" => @flags.network_name,
-      "wrong_pass" => @flags.wrong_pass,
+      "networkName" => @flags.network_name,
+      "wrongPass" => @flags.wrong_pass,
       "nameChange" => @flags.name_change,
-      "attempted_network" => @flags.attempted_network,
     })
 
     # reset flags
