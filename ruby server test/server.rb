@@ -9,7 +9,7 @@ class ServerStatus
     @network_name = false
     @wrong_pass = false
     @name_change = false
-    @attempted_network = "null"
+    @attempted_network = ""
   end
 
   def resetFlags
@@ -17,6 +17,7 @@ class ServerStatus
     @name_change = false
   end
 end
+
 class Portal < Sinatra::Base
   
   enable  :method_override
@@ -43,12 +44,6 @@ class Portal < Sinatra::Base
     
     
     # these statements mock the String processor in ESPAsyncWebServer
-    if @flags.name_change
-      @device_name_change = "<b class='NameChange'>Device name changed to <em>#{@flags.device_name}</em></b><br>"
-    else
-      @device_name_change = ""
-    end
-
     if @flags.network_name == false
       @connection_status = "not connected to a network"
     else
@@ -68,7 +63,7 @@ class Portal < Sinatra::Base
     # reset flags
     @flags.resetFlags()
 
-    erb :"config.html"
+    File.read("views/config.html")
   end
 
   post "/wifisave" do
@@ -102,6 +97,20 @@ class Portal < Sinatra::Base
       })
   end
 
+  get "/server_flags" do
+    @flags = session['flags']
+    puts @flags.device_name
+    flagJSON = JSON.generate({
+      "deviceName" => @flags.device_name,
+      "network_name" => @flags.network_name,
+      "wrong_pass" => @flags.wrong_pass,
+      "nameChange" => @flags.name_change,
+      "attempted_network" => @flags.attempted_network,
+    })
+    @flags.resetFlags()
+    return flagJSON
+  end
+
   # start the server if ruby file executed directly
   run! if app_file == $0
 end
@@ -117,29 +126,4 @@ def check_network(name, password)
   else
     return false
   end
-end
-
-def build_network_list(ssid_list, attempted_network = "")
-  if ssid_list.length == 0
-    return network_html(["No Networks Found"], "disabled")
-  end
-  html_out = ""
-  ssid_list.each do |ssid|
-    html_out += network_html(ssid, ssid == attempted_network)
-  end
-  return html_out
-end
-
-def network_html(ssid, checked=false)
-  checked_hash = {
-    true => "checked ",
-    false => "",
-    "disabled" => "disabled "}
-  
-  return "<label class='radios'>#{ssid}" +
-    "<input id=\"#{ssid}\" type='radio' name='ssid' value=\"#{ssid}\" " +
-    checked_hash[checked] +
-    "required>" +
-    "<span class='checkmark'></span>" +
-  "</label>"
 end
