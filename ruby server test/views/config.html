@@ -56,13 +56,12 @@
 	<br><br>
 
     <div id="network_list">
-    	<%= #@wifi_ssid_list %>
     </div>
         
     <br>
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
-        <%= @wrong_password %>
+          <span id=wrong_password />
         <input type='password' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
@@ -126,11 +125,20 @@
     }
   }
 
+  function fillWrongPassword(flags){
+    const {wrongPass} = flags;
+    var wrongPasswordSpan = document.getElementById('wrong_password')
+    if (wrongPass) {
+      wrongPasswordSpan.insertAdjacentHTML("afterbegin", "<label for='pwd' class=wrong>Wrong password</label><br>")
+    }
+  }
+
   function fillFlaggedElements(flags){
     console.log(flags);
     fillDeviceName(flags)
     fillNameChange(flags)
     fillConnectionStatus(flags)
+    fillWrongPassword(flags)
   }
 
   getServerFlags();
