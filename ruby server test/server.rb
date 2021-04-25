@@ -41,6 +41,8 @@ class Portal < Sinatra::Base
       @flags = ServerStatus.new()
       session['flags'] = @flags
     end
+
+    puts "has name changed?", @flags.name_change
     
     
     # these statements mock the String processor in ESPAsyncWebServer
@@ -61,7 +63,7 @@ class Portal < Sinatra::Base
     # @wifi_ssid_list = build_network_list(scan_networks(), @flags.attempted_network )
 
     # reset flags
-    @flags.resetFlags()
+    # @flags.resetFlags()
 
     File.read("views/config.html")
   end
@@ -81,6 +83,7 @@ class Portal < Sinatra::Base
   end
 
   post "/change_name" do
+    puts "changing device name"
     @flags = session['flags']
     @flags.device_name = params['dev_name']
     @flags.name_change = true
@@ -107,6 +110,8 @@ class Portal < Sinatra::Base
       "nameChange" => @flags.name_change,
       "attempted_network" => @flags.attempted_network,
     })
+
+    # reset flags
     @flags.resetFlags()
     return flagJSON
   end

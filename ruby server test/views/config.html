@@ -105,7 +105,7 @@
     const {deviceName, nameChange} = flags;
     var nameChangeSpan = document.getElementById('device_name_change');
     if (nameChange === true){
-      nameChangeSpan.insertAdjacentHTML(`<b class='NameChange'>Device name changed to <em>${deviceName}</em></b><br>`)
+      nameChangeSpan.insertAdjacentHTML("afterbegin", `<b class='NameChange'>Device name changed to <em>${deviceName}</em></b><br>`)
     }
   }
 
