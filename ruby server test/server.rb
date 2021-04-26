@@ -17,7 +17,6 @@ class ServerStatus
     @name_change = false
   end
 end
-
 class Portal < Sinatra::Base
   
   enable  :method_override
