@@ -191,10 +191,10 @@
   function show_password() {
     var x = document.getElementById("pwd");
     if (x.type === "password") {
-      document.getElementById("checkbox").checked = false;
+      document.getElementById("checkbox").checked = true;
       x.type = "text";
     } else {
-      document.getElementById("checkbox").checked = true;
+      document.getElementById("checkbox").checked = false;
       x.type = "password";
     }
   }

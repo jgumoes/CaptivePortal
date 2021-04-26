@@ -28,10 +28,6 @@ class Portal < Sinatra::Base
     puts ("new flag")
     sessions['flags'] = nil
   end
-  # before (:all) do
-  #   @flags = ServerVariables.create()
-  #   session[:flags] = @flags
-  # end
 
   get "/" do
     @flags = session['flags'] # this will actually be stored as a global variable
@@ -41,18 +37,6 @@ class Portal < Sinatra::Base
       @flags = ServerStatus.new()
       session['flags'] = @flags
     end
-    
-    # these statements mock the String processor in ESPAsyncWebServer
-    if @flags.wrong_pass
-      @wrong_password = "<label for='pwd' class=wrong>Wrong password</label><br>"
-    else
-      @wrong_password = ""
-    end
-
-    # @wifi_ssid_list = build_network_list(scan_networks(), @flags.attempted_network )
-
-    # reset flags
-    # @flags.resetFlags()
 
     File.read("views/config.html")
   end
