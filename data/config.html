@@ -47,8 +47,8 @@
 <h1 class='h'>WiFi Config</h1>
 <br>
 <p class='p'>
-  <div style='text-align:center;'><%= @device_name_change %></div>
-    You are <%= @connection_status %></p>
+  <div style='text-align:center;'><span id=device_name_change /></div>
+    You are <span id=connection_status></span></p>
 
 <form action='/wifisave' method=post>
   	<h3 class='h'>Available Networks:</h3>
@@ -56,13 +56,12 @@
 	<br><br>
 
     <div id="network_list">
-    	<%= @wifi_ssid_list %>
     </div>
         
     <br>
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
-        <%= @wrong_password %>
+          <span id=wrong_password />
         <input type='password' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
@@ -81,7 +80,7 @@
 
 <form action='/change_name' method=post>
   <hr/>
-  <p class='h3'>Change device name from <b><%= @device_name %></b>?</p>
+  <p class='h3'>Change device name from <b><span id=device_name /></b>?</p>
   <div class='p'>
     <div class='namechange_label_container'>
       <span class='namechange_label enter_name'>Enter new device name below</span>
@@ -95,17 +94,110 @@
 <br><br>
 
 <script>
-
-function show_password() {
-  var x = document.getElementById("pwd");
-  if (x.type === "password") {
-    document.getElementById("checkbox").checked = false;
-    x.type = "text";
-  } else {
-    document.getElementById("checkbox").checked = true;
-    x.type = "password";
+  async function getServerFlags(){
+    fetch('/server_flags', {method: 'GET'})
+    .then(result => result.json())
+    .then(data => fillFlaggedElements(data))
   }
-}
+
+  function fillNameChange(flags){
+    const {deviceName, nameChange} = flags;
+    var nameChangeSpan = document.getElementById('device_name_change');
+    if (nameChange === true){
+      nameChangeSpan.insertAdjacentHTML("afterbegin", `<b class='NameChange'>Device name changed to <em>${deviceName}</em></b><br>`)
+    }
+  }
+
+  function fillDeviceName(flags){
+    const {deviceName} = flags;
+    var deviceNameSpan = document.getElementById('device_name');
+    deviceNameSpan.innerText = deviceName;
+  }
+
+  function fillConnectionStatus(flags){
+    const {networkName} = flags;
+    var connectionStatusSpan = document.getElementById('connection_status')
+    if (!networkName){
+      connectionStatusSpan.innerText = "not connected to a network"
+    }
+    else{
+      connectionStatusSpan.innerText = `connected to ${networkName}`
+    }
+  }
+
+  function fillWrongPassword(flags){
+    const {wrongPass} = flags;
+    var wrongPasswordSpan = document.getElementById('wrong_password')
+    if (wrongPass) {
+      wrongPasswordSpan.insertAdjacentHTML("afterbegin", "<label for='pwd' class=wrong>Wrong password</label><br>")
+    }
+  }
+
+  function fillFlaggedElements(flags){
+    console.log(flags);
+    fillDeviceName(flags)
+    fillNameChange(flags)
+    fillConnectionStatus(flags)
+    fillWrongPassword(flags)
+  }
+
+  getServerFlags();
+</script>
+<script>
+  async function getNetworkList(){
+    fetch('/scan_networks', {method: 'GET'})
+    .then(result => result.json())
+    .then(data => fillNetworkList(data))
+  }
+
+  function fillNetworkList(data){
+    console.log('ssids: ' + data);
+    var networkDiv = document.getElementById('network_list')
+    var ssids = data.network_list
+    var disabled = ``
+    if(ssids.length === 0){
+      ssids = ["No Networks Found"]
+      disabled = `disabled=true `
+      disableConnectButton();
+    }
+
+    for (ssid of ssids){
+      console.log('ssid: ' + ssid);
+      html = `<label class='radios'>${ssid}` +
+        `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
+        // if ssid == last_ssid then page += 'checked="true"' end
+        disabled +
+        `required>` +
+        `<span class='checkmark'></span>` +
+      `</label>`
+      // console.log(html);
+      networkDiv.insertAdjacentHTML("afterbegin", html)
+    }
+
+    var attempted_network = data.attempted_network
+    document.getElementById(attempted_network).checked = true
+  }
+
+  function disableConnectButton(){
+    var connectButton = document.getElementById('connectButton')
+    connectButton.disabled = true;
+    // connectButton.input = 'button'
+    connectButton.style.background = '#bdbdbd';
+    // connectButton.onclick = () => {window.confirm("There aren't any networks to connect to!")}
+  }
+
+  getNetworkList();
+
+  function show_password() {
+    var x = document.getElementById("pwd");
+    if (x.type === "password") {
+      document.getElementById("checkbox").checked = true;
+      x.type = "text";
+    } else {
+      document.getElementById("checkbox").checked = false;
+      x.type = "password";
+    }
+  }
 </script>
 </body>
 </html>
