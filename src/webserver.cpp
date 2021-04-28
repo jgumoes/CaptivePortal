@@ -21,9 +21,21 @@ bool handleCaptivePortal() { // send the right file to the client (if it exists)
   return false;                                         // If the file doesn't exist, return false
 }
 
+void sendScanNetworks() {
+  int numOfNetworks = WiFi.scanNetworks();
+  String ssidList = "{\"network_list\":[";
+  for(int i = 0; i < numOfNetworks; i++) {
+    ssidList += "\"" + WiFi.SSID(i) + "\"";
+    if(numOfNetworks - i != 1) { ssidList += ",";}
+  }
+  ssidList += "],\"attempted_network\":\"\"}";
+  webServer.send(200, "application/json", ssidList);
+}
+
 void setupWebServer () {
   webServer.on("/captive_portal", handleCaptivePortal);
-  // replie to all requests with same HTML
+  webServer.on("/scan_networks", sendScanNetworks);
+  // reply to all requests with same HTML
   webServer.onNotFound([]() {
     Serial.println("handling Not Found");
     String message = "URI: ";
