@@ -2,6 +2,7 @@
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include "webserver.h"
+#include "wifiHelpers.h"
 
 const byte DNS_PORT = 53;
 IPAddress apIP(172, 217, 28, 1);

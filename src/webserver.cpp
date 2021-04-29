@@ -1,10 +1,11 @@
 #include <ESP8266WebServer.h>
 #include <LittleFS.h>
+#include "wifiHelpers.h"
 
-ESP8266WebServer webServer(80);
+ESP8266WebServer server(80);
 
 void handlePortalClient(){
-  webServer.handleClient();
+  server.handleClient();
 }
 
 bool handleCaptivePortal() { // send the right file to the client (if it exists)
@@ -12,7 +13,7 @@ bool handleCaptivePortal() { // send the right file to the client (if it exists)
   String contentType = "text/html";            // Get the MIME type
   if (LittleFS.exists(path)) {                            // If the file exists
     File file = LittleFS.open(path, "r");                 // Open it
-    webServer.streamFile(file, contentType); // And send it to the client
+    server.streamFile(file, contentType); // And send it to the client
     Serial.println("file sent to client");
     file.close();                                       // Then close the file again
     return true;
@@ -29,19 +30,38 @@ void sendScanNetworks() {
     if(numOfNetworks - i != 1) { ssidList += ",";}
   }
   ssidList += "],\"attempted_network\":\"\"}";
-  webServer.send(200, "application/json", ssidList);
+  server.send(200, "application/json", ssidList);
+}
+
+void handleWifiSave(){
+  Serial.println("wifi save");
+  // char ssid[33] = "";
+  // char password[65] = "";
+  String ssid = server.arg("ssid");//.toCharArray(ssid, sizeof(ssid) - 1);
+  String password = server.arg("pwd");//.toCharArray(password, sizeof(password) - 1);
+  // there should be a check for if a password for the ssid is already stored
+  connectWifi(ssid, password);
+  Serial.print("ssid:\t"); Serial.println(ssid);
+  Serial.print("password:\t"); Serial.println(password);
+  server.sendHeader("Location", "wifi", true);
+  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  server.sendHeader("Pragma", "no-cache");
+  server.sendHeader("Expires", "-1");
+  server.send(302, "text/plain", "");    // Empty content inhibits Content-length header so we have to close the socket ourselves.
+  server.client().stop(); // Stop is needed because we sent no content length
 }
 
 void setupWebServer () {
-  webServer.on("/captive_portal", handleCaptivePortal);
-  webServer.on("/scan_networks", sendScanNetworks);
+  server.on("/captive_portal", handleCaptivePortal);
+  server.on("/scan_networks", sendScanNetworks);
+  server.on("/wifisave", handleWifiSave);
   // reply to all requests with same HTML
-  webServer.onNotFound([]() {
+  server.onNotFound([]() {
     Serial.println("handling Not Found");
     String message = "URI: ";
-    message += webServer.uri();
+    message += server.uri();
     Serial.println(message);
     handleCaptivePortal();
   });
-  webServer.begin();
+  server.begin();
 }

@@ -61,3 +61,25 @@ esp->client: "responds with 'not ready'"
 client->esp: "post '/network_list'"
 esp->client: "serves networks.json"
 ```
+
+### Saving Credentials Flow
+
+Below is the flowchart for saving a POSTed ssid and password. There could eventually be a check for if the wifi ssid has already been saved, so if the user enters a wrong (or no) password for a given network, it will try to connect using the stored password instead. This gives the user freedom to select a prefered network (i.e. if they have multiple routers at home, and the device has connected to the one with poor connection). This could of course be reduntant by having the device pick strongest availlable network stored, and re-assessing networks if the connection drops. I think it still could be nice to have though.
+```https://playground.diagram.codes/d/flowchart
+"WiFi details are POSTed"
+IF "do they work?"
+ "save new credentials"
+ELSE
+ IF "ssid is stored
+ in memory?"
+ "use stored password"
+  IF "does it work?"
+   "save credentials"
+  ELSE
+   "send 'bad password' message"
+  END IF
+ ELSE
+    "send 'bad password' message"
+ END IF
+END IF
+```
