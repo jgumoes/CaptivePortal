@@ -92,6 +92,7 @@ class Portal < Sinatra::Base
 end
 
 def scan_networks(empty=false)
+  sleep(3)
   return [] if empty
   ["FBI Van number 2", "Stupid Starbucks", "Uncle Touchy\'s Mystery Van"]
 end

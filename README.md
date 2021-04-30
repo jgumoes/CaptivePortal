@@ -56,9 +56,9 @@ client->esp: "get '/config'"
 esp->esp: "starts the network scan"
 esp->client: "serves config.html,
 config.css, config.js"
-client->esp: "post '/network_list'"
+client->esp: "get '/network_list'"
 esp->client: "responds with 'not ready'"
-client->esp: "post '/network_list'"
+client->esp: "get '/network_list'"
 esp->client: "serves networks.json"
 ```
 

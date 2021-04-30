@@ -42,7 +42,7 @@
       .NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
     </style>
   </head>
-<body style='max-width: 580px; margin-left:auto;margin-right:auto;'>
+<body style='max-width: 580px;'>
 
 <h1 class='h'>WiFi Config</h1>
 <br>
@@ -56,6 +56,7 @@
 	<br><br>
 
     <div id="network_list">
+      <div style="text-align: center;">Scanning for networks...</div>
     </div>
         
     <br>
@@ -78,7 +79,7 @@
     
 </form>
 
-<form action='/change_name' method=post>
+<form action='/change_name' method='POST'>
   <hr/>
   <p class='h3'>Change device name from <b><span id=device_name /></b>?</p>
   <div class='p'>
@@ -161,6 +162,8 @@
       disableConnectButton();
     }
 
+    networkDiv.innerHTML = "";
+
     for (ssid of ssids){
       console.log('ssid: ' + ssid);
       html = `<label class='radios'>${ssid}` +
@@ -171,6 +174,7 @@
         `<span class='checkmark'></span>` +
       `</label>`
       // console.log(html);
+      // networkDiv.innerHTML = html;
       networkDiv.insertAdjacentHTML("afterbegin", html)
     }
 
