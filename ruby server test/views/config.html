@@ -24,7 +24,6 @@
       .radios input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
       .radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
       .connect {letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;background-color: #4CAF50;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
-
       .namechange_label_container { 
         margin-right:auto;display: inline-block;}
       .namechange_label {text-align: right; display: inline-block; max-width: 215px; float: right;}
@@ -34,6 +33,8 @@
         /* .enter_name{float:ri;} */
       }
 
+      .show {opacity: 1; background: none;}
+      .hide {opacity: 20%; background: darkslategrey;}
 
       /* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
       #pwd, #dev_name {width: 80%;margin-left: 10%;margin-top: 10px;}
@@ -50,10 +51,10 @@
   <div style='text-align:center;'><span id=device_name_change /></div>
     You are <span id=connection_status></span></p>
 
-<div id="wifiSaveForm">
+  <form id="wifiSaveForm" class='show'>
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
-	<br><br>
+    <br><br>
 
     <div id="network_list">
       <div style="text-align: center;">Scanning for networks...</div>
@@ -63,7 +64,7 @@
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
           <span id=wrong_password></span>
-        <input type='password' id='pwd' name='pwd' onkeypress="handlePwdEnter(event.keyCode)"><br><br>
+        <input type='password' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
             <input type="checkbox" id='checkbox' onclick="show_password()">
@@ -77,9 +78,9 @@
     
     <input id='connectButton' type='button' onclick="postWifiSaveForm()" class='connect' value='Connect'>
     
-  </div>
+  </form>
 
-<form action='/change_name' method='POST'>
+<form id="changeNameForm" action='/change_name' method='POST'>
   <hr/>
   <p class='h3'>Change device name from <b><span id=device_name /></b>?</p>
   <div class='p'>
@@ -109,10 +110,17 @@
     return pass.value;
   }
 
-  function handlePwdEnter(keyCode){
-    if(keyCode == 13){
+  document.getElementById('pwd').addEventListener('keypress', handlePwdEnter)
+
+  function handlePwdEnter(event){
+    const keyCode = event.code;
+    if(keyCode == "Enter"){
+      event.preventDefault();
+      console.log('handlePwdEnter', event.code)
       postWifiSaveForm();
+      return false;
     }
+    return true;
   }
 
   function postWifiSaveForm(){
@@ -128,15 +136,32 @@
         if (!data.wrongPass){
           fillConnectionStatus({'networkName': findChosenSSID()});
         }
+        waitingForWifisaveResponse(false)
       })
   }
 </script>
 <script> // html elements are filled and adjusted here
+  function hideOrShowForm(form, hide){
+    console.log('hideOrShowForm');
+    if(hide){
+      form.setAttribute('class', 'hide')
+    }
+    else {
+      form.setAttribute('class', 'show')
+    }
+    console.log(form);
+  }
+
   function waitingForWifisaveResponse(waiting){
     // this should eventually toggle wifisave form elements and grey them out until a response is recieved
+    console.log('waitingForWifisaveResponse');
+    const form = document.getElementById('wifiSaveForm')
     if (waiting){
       fillWrongPassword(false)
     }
+    console.log(form);
+    console.log(waiting);
+    hideOrShowForm(form, waiting)
   }
 
   async function getServerFlags(){
