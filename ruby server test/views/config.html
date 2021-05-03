@@ -110,14 +110,9 @@
   }
 
   function postWifiSaveForm(){
-    const saveForm = document.getElementById('wifiSaveForm');
     const formData = new FormData();
     formData.append('ssid', findChosenSSID())
     formData.append('pwd', findEnteredPassword())
-    // var request = new XMLHttpRequest();
-    // request.open("POST", "wifisave");
-    // request.send(new FormData(saveForm));
-    console.log('saveForm: ', saveForm);
     fetch('/wifisave', {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => console.log('wifiSave return object: ', data))

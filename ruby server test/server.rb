@@ -45,14 +45,21 @@ class Portal < Sinatra::Base
     # puts session.keys
     if check_network(params['ssid'], params['pwd'])
       @flags.network_name = params['ssid']
+      wrong_pass = false
     else
       @flags.attempted_network = params['ssid']
       @flags.network_name = false
-      @flags.wrong_pass = true
+      wrong_pass = true
     end
     print "wifisave params:"
     puts params
 
+    content_type 'application/json'
+    JSON.generate({
+      'wrongPass' => wrong_pass
+    })
+
+    # redirect "/server_flags"
     # redirect "/"
   end
 
