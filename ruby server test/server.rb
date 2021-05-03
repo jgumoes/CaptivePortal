@@ -42,7 +42,7 @@ class Portal < Sinatra::Base
 
   post "/wifisave" do
     @flags = session['flags']
-    puts session.keys
+    # puts session.keys
     if check_network(params['ssid'], params['pwd'])
       @flags.network_name = params['ssid']
     else
@@ -50,8 +50,10 @@ class Portal < Sinatra::Base
       @flags.network_name = false
       @flags.wrong_pass = true
     end
+    print "wifisave params:"
+    puts params
 
-    redirect "/"
+    # redirect "/"
   end
 
   post "/change_name" do

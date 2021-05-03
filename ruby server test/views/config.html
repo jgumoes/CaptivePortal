@@ -50,7 +50,7 @@
   <div style='text-align:center;'><span id=device_name_change /></div>
     You are <span id=connection_status></span></p>
 
-<form action='/wifisave' method=post>
+<form id="wifiSaveForm" action='/wifisave' method=post>
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
 	<br><br>
@@ -75,7 +75,7 @@
     </div>
     <br>
     
-    <input id='connectButton' type='submit' class='connect' value='Connect'>
+    <input id='connectButton' type='button' onclick="postWifiSaveForm()" class='connect' value='Connect'>
     
 </form>
 
@@ -94,6 +94,35 @@
 </form>
 <br><br>
 
+<script> // form POSTs will get handled here
+
+  function findChosenSSID(){
+    const networks = document.getElementsByName('ssid')
+    for (network of networks){
+      if (network.checked){return network.value}
+    }
+    console.log('you shouldn\'t be seeing this...');
+  }
+
+  function findEnteredPassword(){
+    const pass = document.getElementById('pwd')
+    return pass.value;
+  }
+
+  function postWifiSaveForm(){
+    const saveForm = document.getElementById('wifiSaveForm');
+    const formData = new FormData();
+    formData.append('ssid', findChosenSSID())
+    formData.append('pwd', findEnteredPassword())
+    // var request = new XMLHttpRequest();
+    // request.open("POST", "wifisave");
+    // request.send(new FormData(saveForm));
+    console.log('saveForm: ', saveForm);
+    fetch('/wifisave', {method: 'POST', body: formData})
+      .then(result => result.json())
+      .then(data => console.log('wifiSave return object: ', data))
+  }
+</script>
 <script>
   async function getServerFlags(){
     fetch('/server_flags', {method: 'GET'})
