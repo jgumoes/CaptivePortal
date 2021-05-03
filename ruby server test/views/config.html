@@ -50,7 +50,7 @@
   <div style='text-align:center;'><span id=device_name_change /></div>
     You are <span id=connection_status></span></p>
 
-<form id="wifiSaveForm" action='/wifisave' method=post>
+<div id="wifiSaveForm">
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
 	<br><br>
@@ -62,8 +62,8 @@
     <br>
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
-          <span id=wrong_password />
-        <input type='password' id='pwd' name='pwd'><br><br>
+          <span id=wrong_password></span>
+        <input type='password' id='pwd' name='pwd' onkeypress="handlePwdEnter(event.keyCode)"><br><br>
         <div>
           <div style='display:inline-block;'>
             <input type="checkbox" id='checkbox' onclick="show_password()">
@@ -77,7 +77,7 @@
     
     <input id='connectButton' type='button' onclick="postWifiSaveForm()" class='connect' value='Connect'>
     
-</form>
+  </div>
 
 <form action='/change_name' method='POST'>
   <hr/>
@@ -109,13 +109,25 @@
     return pass.value;
   }
 
+  function handlePwdEnter(keyCode){
+    if(keyCode == 13){
+      postWifiSaveForm();
+    }
+  }
+
   function postWifiSaveForm(){
     const formData = new FormData();
     formData.append('ssid', findChosenSSID())
     formData.append('pwd', findEnteredPassword())
     fetch('/wifisave', {method: 'POST', body: formData})
       .then(result => result.json())
-      .then(data => console.log('wifiSave return object: ', data))
+      .then(data => {
+        console.log('wifiSave return object: ', data);
+        fillWrongPassword(data);
+        if (!data.wrongPass){
+          fillConnectionStatus({'networkName': findChosenSSID()});
+        }
+      })
   }
 </script>
 <script>
@@ -153,9 +165,11 @@
   function fillWrongPassword(flags){
     const {wrongPass} = flags;
     var wrongPasswordSpan = document.getElementById('wrong_password')
-    if (wrongPass) {
-      wrongPasswordSpan.insertAdjacentHTML("afterbegin", "<label for='pwd' class=wrong>Wrong password</label><br>")
+    const htmlOptions = {
+      'true': "<label for='pwd' class=wrong>Wrong password</label><br>",
+      'false': ""
     }
+    wrongPasswordSpan.innerHTML = htmlOptions[wrongPass]
   }
 
   function fillFlaggedElements(flags){
