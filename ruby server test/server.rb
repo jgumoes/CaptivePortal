@@ -2,21 +2,20 @@
 require 'sinatra/base'
 
 class ServerStatus
-  attr_accessor :device_name, :network_name, :wrong_pass, :name_change, :attempted_network
+  attr_accessor :device_name, :network_name, :name_change, :attempted_network
 
   def initialize
     @device_name = "Butt's McGee"
     @network_name = false
-    @wrong_pass = false
     @name_change = false
     @attempted_network = ""
   end
 
   def resetFlags
-    @wrong_pass = false
     @name_change = false
   end
 end
+
 class Portal < Sinatra::Base
   
   enable  :method_override
@@ -47,7 +46,7 @@ class Portal < Sinatra::Base
       @flags.network_name = params['ssid']
       wrong_pass = false
     else
-      @flags.attempted_network = params['ssid']
+      # @flags.attempted_network = params['ssid']
       @flags.network_name = false
       wrong_pass = true
     end
@@ -87,7 +86,6 @@ class Portal < Sinatra::Base
     flagJSON = JSON.generate({
       "deviceName" => @flags.device_name,
       "networkName" => @flags.network_name,
-      "wrongPass" => @flags.wrong_pass,
       "nameChange" => @flags.name_change,
     })
 

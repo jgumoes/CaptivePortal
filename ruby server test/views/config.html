@@ -119,18 +119,26 @@
     const formData = new FormData();
     formData.append('ssid', findChosenSSID())
     formData.append('pwd', findEnteredPassword())
+    waitingForWifisaveResponse(true)
     fetch('/wifisave', {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
         console.log('wifiSave return object: ', data);
-        fillWrongPassword(data);
+        fillWrongPassword(data.wrongPass);
         if (!data.wrongPass){
           fillConnectionStatus({'networkName': findChosenSSID()});
         }
       })
   }
 </script>
-<script>
+<script> // html elements are filled and adjusted here
+  function waitingForWifisaveResponse(waiting){
+    // this should eventually toggle wifisave form elements and grey them out until a response is recieved
+    if (waiting){
+      fillWrongPassword(false)
+    }
+  }
+
   async function getServerFlags(){
     fetch('/server_flags', {method: 'GET'})
     .then(result => result.json())
@@ -162,8 +170,8 @@
     }
   }
 
-  function fillWrongPassword(flags){
-    const {wrongPass} = flags;
+  function fillWrongPassword(wrongPass){
+    // const {wrongPass} = flags;
     var wrongPasswordSpan = document.getElementById('wrong_password')
     const htmlOptions = {
       'true': "<label for='pwd' class=wrong>Wrong password</label><br>",
@@ -177,7 +185,6 @@
     fillDeviceName(flags)
     fillNameChange(flags)
     fillConnectionStatus(flags)
-    fillWrongPassword(flags)
   }
 
   getServerFlags();
