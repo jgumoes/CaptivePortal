@@ -97,67 +97,47 @@
 
 <script> // form POSTs will get handled here
 
-  function findChosenSSID(){
-    const networks = document.getElementsByName('ssid')
-    for (network of networks){
-      if (network.checked){return network.value}
-    }
-    console.log('you shouldn\'t be seeing this...');
-  }
+  document.getElementById('pwd').addEventListener('keypress', (e) => handleFormEnter(e, 'pwd'))
 
-  function findEnteredPassword(){
-    const pass = document.getElementById('pwd')
-    return pass.value;
-  }
-
-  document.getElementById('pwd').addEventListener('keypress', handlePwdEnter)
-
-  function handlePwdEnter(event){
+  function handleFormEnter(event, elementID){
     const keyCode = event.code;
-    if(keyCode == "Enter"){
+    const postForms = {'pwd': postWifiSaveForm} // which form-sending-function to call for which elementID
+    if(keyCode === "Enter"){
       event.preventDefault();
-      postWifiSaveForm();
+      postForms[elementID]()
       return false;
     }
     return true;
   }
-
-  function postWifiSaveForm(){
-    const formData = new FormData();
-    formData.append('ssid', findChosenSSID())
-    formData.append('pwd', findEnteredPassword())
-    waitingForWifisaveResponse(true)
-    fetch('/wifisave', {method: 'POST', body: formData})
-      .then(result => result.json())
-      .then(data => {
-        fillWrongPassword(data.wrongPass);
-        if (!data.wrongPass){
-          fillConnectionStatus({'networkName': findChosenSSID()});
-        }
-        waitingForWifisaveResponse(false)
-      })
+  
+  function waitingForFormResponse(waiting, formID){
+    // this should work for wifiSaveForm, saveDeviceName, and any other forms that may be added along the way
+    const form = document.getElementById(formID)
+    if (waiting){ fillWrongPassword(false) }
+    hideOrShowForm(form, waiting)
+    for (el of form.elements){ el.disabled = waiting }
   }
+  
+    function postWifiSaveForm(){
+      // this COULD be refactored into a generic postForm function, but should it?
+      const formData = new FormData();
+      const wifiForm = document.getElementById('wifiSaveForm')
+      formData.append('ssid', wifiForm.elements.ssid.value)
+      formData.append('pwd', wifiForm.elements.pwd.value)
+      waitingForFormResponse(true, 'wifiSaveForm')
+      fetch('/wifisave', {method: 'POST', body: formData})
+        .then(result => result.json())
+        .then(data => {
+          fillWrongPassword(data.wrongPass);
+          if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
+          waitingForFormResponse(false, 'wifiSaveForm')
+        })
+    }
 </script>
 <script> // html elements are filled and adjusted here
   function hideOrShowForm(form, hide){
-    if(hide){
-      form.setAttribute('class', 'hide')
-    }
-    else {
-      form.setAttribute('class', 'show')
-    }
-  }
-
-  function waitingForWifisaveResponse(waiting){
-    // this should eventually toggle wifisave form elements and grey them out until a response is recieved
-    const form = document.getElementById('wifiSaveForm')
-    if (waiting){
-      fillWrongPassword(false)
-    }
-    hideOrShowForm(form, waiting)
-    for (el of form.elements){
-      el.disabled = waiting;
-    }
+    if(hide){ form.setAttribute('class', 'hide') }
+    else { form.setAttribute('class', 'show') }
   }
 
   async function getServerFlags(){
@@ -231,7 +211,6 @@
     networkDiv.innerHTML = "";
 
     for (ssid of ssids){
-      console.log('ssid: ' + ssid);
       html = `<label class='radios'>${ssid}` +
         `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
         // if ssid == last_ssid then page += 'checked="true"' end
