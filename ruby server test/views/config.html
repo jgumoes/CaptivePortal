@@ -116,7 +116,6 @@
     const keyCode = event.code;
     if(keyCode == "Enter"){
       event.preventDefault();
-      console.log('handlePwdEnter', event.code)
       postWifiSaveForm();
       return false;
     }
@@ -131,7 +130,6 @@
     fetch('/wifisave', {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
-        console.log('wifiSave return object: ', data);
         fillWrongPassword(data.wrongPass);
         if (!data.wrongPass){
           fillConnectionStatus({'networkName': findChosenSSID()});
@@ -142,26 +140,24 @@
 </script>
 <script> // html elements are filled and adjusted here
   function hideOrShowForm(form, hide){
-    console.log('hideOrShowForm');
     if(hide){
       form.setAttribute('class', 'hide')
     }
     else {
       form.setAttribute('class', 'show')
     }
-    console.log(form);
   }
 
   function waitingForWifisaveResponse(waiting){
     // this should eventually toggle wifisave form elements and grey them out until a response is recieved
-    console.log('waitingForWifisaveResponse');
     const form = document.getElementById('wifiSaveForm')
     if (waiting){
       fillWrongPassword(false)
     }
-    console.log(form);
-    console.log(waiting);
     hideOrShowForm(form, waiting)
+    for (el of form.elements){
+      el.disabled = waiting;
+    }
   }
 
   async function getServerFlags(){
