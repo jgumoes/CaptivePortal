@@ -40,14 +40,18 @@ void handleWifiSave(){
   String ssid = server.arg("ssid");//.toCharArray(ssid, sizeof(ssid) - 1);
   String password = server.arg("pwd");//.toCharArray(password, sizeof(password) - 1);
   // there should be a check for if a password for the ssid is already stored
-  connectWifi(ssid, password);
+  bool connRes = connectWifi(ssid, password);
   Serial.print("ssid:\t"); Serial.println(ssid);
   Serial.print("password:\t"); Serial.println(password);
-  server.sendHeader("Location", "wifi", true);
-  server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  server.sendHeader("Pragma", "no-cache");
-  server.sendHeader("Expires", "-1");
-  server.send(302, "text/plain", "");    // Empty content inhibits Content-length header so we have to close the socket ourselves.
+  // server.sendHeader("Location", "wifi", true);
+  // server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  // server.sendHeader("Pragma", "no-cache");
+  // server.sendHeader("Expires", "-1");
+  // server.send(302, "text/plain", "");    // Empty content inhibits Content-length header so we have to close the socket ourselves.
+  String responseObj = "{'wrongPass': '";
+  responseObj += connRes ? "true" : "false";
+  responseObj += "'}";
+  server.send(302, "application/json", responseObj);
   server.client().stop(); // Stop is needed because we sent no content length
 }
 

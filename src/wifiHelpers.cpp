@@ -10,5 +10,5 @@ bool connectWifi(String& ssid, String& password) {
   Serial.println(millis());
   Serial.print("connRes: ");
   Serial.println(connRes);
-  return true;
+  return connRes == 3;
 }

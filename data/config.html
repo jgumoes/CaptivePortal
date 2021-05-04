@@ -24,7 +24,6 @@
       .radios input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
       .radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
       .connect {letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;background-color: #4CAF50;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
-
       .namechange_label_container { 
         margin-right:auto;display: inline-block;}
       .namechange_label {text-align: right; display: inline-block; max-width: 215px; float: right;}
@@ -34,6 +33,8 @@
         /* .enter_name{float:ri;} */
       }
 
+      .show {opacity: 1; background: none;}
+      .hide {opacity: 20%; background: darkslategrey;}
 
       /* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
       #pwd, #dev_name {width: 80%;margin-left: 10%;margin-top: 10px;}
@@ -50,10 +51,10 @@
   <div style='text-align:center;'><span id=device_name_change /></div>
     You are <span id=connection_status></span></p>
 
-<form action='/wifisave' method=post>
+  <form id="wifiSaveForm" class='show'>
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
-	<br><br>
+    <br><br>
 
     <div id="network_list">
       <div style="text-align: center;">Scanning for networks...</div>
@@ -62,7 +63,7 @@
     <br>
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
-          <span id=wrong_password />
+          <span id=wrong_password></span>
         <input type='password' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
@@ -75,11 +76,11 @@
     </div>
     <br>
     
-    <input id='connectButton' type='submit' class='connect' value='Connect'>
+    <input id='connectButton' type='button' onclick="postWifiSaveForm()" class='connect' value='Connect'>
     
-</form>
+  </form>
 
-<form action='/change_name' method='POST'>
+<form id="changeNameForm" action='/change_name' method='POST'>
   <hr/>
   <p class='h3'>Change device name from <b><span id=device_name /></b>?</p>
   <div class='p'>
@@ -94,7 +95,51 @@
 </form>
 <br><br>
 
-<script>
+<script> // form POSTs will get handled here
+
+  document.getElementById('pwd').addEventListener('keypress', (e) => handleFormEnter(e, 'pwd'))
+
+  function handleFormEnter(event, elementID){
+    const keyCode = event.code;
+    const postForms = {'pwd': postWifiSaveForm} // which form-sending-function to call for which elementID
+    if(keyCode === "Enter"){
+      event.preventDefault();
+      postForms[elementID]()
+      return false;
+    }
+    return true;
+  }
+  
+  function waitingForFormResponse(waiting, formID){
+    // this should work for wifiSaveForm, saveDeviceName, and any other forms that may be added along the way
+    const form = document.getElementById(formID)
+    if (waiting){ fillWrongPassword(false) }
+    hideOrShowForm(form, waiting)
+    for (el of form.elements){ el.disabled = waiting }
+  }
+  
+    function postWifiSaveForm(){
+      // this COULD be refactored into a generic postForm function, but should it?
+      const formData = new FormData();
+      const wifiForm = document.getElementById('wifiSaveForm')
+      formData.append('ssid', wifiForm.elements.ssid.value)
+      formData.append('pwd', wifiForm.elements.pwd.value)
+      waitingForFormResponse(true, 'wifiSaveForm')
+      fetch('/wifisave', {method: 'POST', body: formData})
+        .then(result => result.json())
+        .then(data => {
+          fillWrongPassword(data.wrongPass);
+          if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
+          waitingForFormResponse(false, 'wifiSaveForm')
+        })
+    }
+</script>
+<script> // html elements are filled and adjusted here
+  function hideOrShowForm(form, hide){
+    if(hide){ form.setAttribute('class', 'hide') }
+    else { form.setAttribute('class', 'show') }
+  }
+
   async function getServerFlags(){
     fetch('/server_flags', {method: 'GET'})
     .then(result => result.json())
@@ -126,12 +171,14 @@
     }
   }
 
-  function fillWrongPassword(flags){
-    const {wrongPass} = flags;
+  function fillWrongPassword(wrongPass){
+    // const {wrongPass} = flags;
     var wrongPasswordSpan = document.getElementById('wrong_password')
-    if (wrongPass) {
-      wrongPasswordSpan.insertAdjacentHTML("afterbegin", "<label for='pwd' class=wrong>Wrong password</label><br>")
+    const htmlOptions = {
+      'true': "<label for='pwd' class=wrong>Wrong password</label><br>",
+      'false': ""
     }
+    wrongPasswordSpan.innerHTML = htmlOptions[wrongPass]
   }
 
   function fillFlaggedElements(flags){
@@ -139,7 +186,6 @@
     fillDeviceName(flags)
     fillNameChange(flags)
     fillConnectionStatus(flags)
-    fillWrongPassword(flags)
   }
 
   getServerFlags();
@@ -165,7 +211,6 @@
     networkDiv.innerHTML = "";
 
     for (ssid of ssids){
-      console.log('ssid: ' + ssid);
       html = `<label class='radios'>${ssid}` +
         `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
         // if ssid == last_ssid then page += 'checked="true"' end
