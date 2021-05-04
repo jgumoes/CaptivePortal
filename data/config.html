@@ -132,6 +132,7 @@
           if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
           waitingForFormResponse(false, 'wifiSaveForm')
         })
+        .catch(error => {waitingForFormResponse(false, 'wifiSaveForm'); fillWrongPassword(true)})
     }
 </script>
 <script> // html elements are filled and adjusted here

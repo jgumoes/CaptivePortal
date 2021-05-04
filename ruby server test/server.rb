@@ -36,7 +36,8 @@ class Portal < Sinatra::Base
       session['flags'] = @flags
     end
 
-    File.read("views/config.html")
+    # File.read("views/config.html")
+    File.read("../data/config.html")
   end
 
   post "/wifisave" do
@@ -99,7 +100,7 @@ class Portal < Sinatra::Base
 end
 
 def scan_networks(empty=false)
-  sleep(3)
+  sleep(1)
   return [] if empty
   ["FBI Van number 2", "Stupid Starbucks", "Uncle Touchy\'s Mystery Van"]
 end
