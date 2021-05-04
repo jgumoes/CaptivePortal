@@ -2,13 +2,16 @@
 
 bool connectWifi(String& ssid, String& password) {
   Serial.println("Connecting as wifi client...");
-  WiFi.disconnect();
-  Serial.println(millis());
+  // WiFi.disconnect();
   WiFi.begin(ssid, password);
-  Serial.println(millis());
-  int connRes = WiFi.waitForConnectResult();
-  Serial.println(millis());
+  int connRes = WiFi.waitForConnectResult(10000);
+  if (connRes != 3){
+    // this little statement is the culmination of an entire day of swearing. it is very important.
+    WiFi.disconnect();
+  }
   Serial.print("connRes: ");
   Serial.println(connRes);
-  return connRes == 3;
+  Serial.print("status: ");
+  Serial.println(WiFi.status());
+  return connRes == 3 ? true : false;
 }

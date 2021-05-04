@@ -118,22 +118,29 @@
     for (el of form.elements){ el.disabled = waiting }
   }
   
-    function postWifiSaveForm(){
-      // this COULD be refactored into a generic postForm function, but should it?
-      const formData = new FormData();
-      const wifiForm = document.getElementById('wifiSaveForm')
-      formData.append('ssid', wifiForm.elements.ssid.value)
-      formData.append('pwd', wifiForm.elements.pwd.value)
-      waitingForFormResponse(true, 'wifiSaveForm')
-      fetch('/wifisave', {method: 'POST', body: formData})
-        .then(result => result.json())
-        .then(data => {
-          fillWrongPassword(data.wrongPass);
-          if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
-          waitingForFormResponse(false, 'wifiSaveForm')
-        })
-        .catch(error => {waitingForFormResponse(false, 'wifiSaveForm'); fillWrongPassword(true)})
-    }
+  function postWifiSaveForm(){
+    // this COULD be refactored into a generic postForm function, but should it?
+    const formData = new FormData();
+    const wifiForm = document.getElementById('wifiSaveForm')
+    formData.append('ssid', wifiForm.elements.ssid.value)
+    formData.append('pwd', wifiForm.elements.pwd.value)
+    waitingForFormResponse(true, 'wifiSaveForm')
+    fetch('/wifisave', {method: 'POST', body: formData})
+      .then(result => result.json())
+      .then(data => {
+        fillWrongPassword(data.wrongPass);
+        if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
+        waitingForFormResponse(false, 'wifiSaveForm')
+      })
+      .catch(function(error) {
+        waitingForFormResponse(false, 'wifiSaveForm');
+        fillWrongPassword(true);
+        console.log(error);
+        globalError = error;
+      })
+  }
+
+  let globalError;
 </script>
 <script> // html elements are filled and adjusted here
   function hideOrShowForm(form, hide){
@@ -191,7 +198,7 @@
 
   getServerFlags();
 </script>
-<script>
+<script> // the network list is fetched and filled here
   async function getNetworkList(){
     fetch('/scan_networks', {method: 'GET'})
     .then(result => result.json())
