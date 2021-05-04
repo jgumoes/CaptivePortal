@@ -48,9 +48,9 @@ void handleWifiSave(){
   // server.sendHeader("Pragma", "no-cache");
   // server.sendHeader("Expires", "-1");
   // server.send(200, "application/json", "{'wrongPass': 'doesn\'t matter'}");    // Empty content inhibits Content-length header so we have to close the socket ourselves.
-  String responseObj = "{'wrongPass': '";
+  String responseObj = "{\"wrongPass\": \"";
   responseObj += connRes ? "false" : "true";
-  responseObj += "'}";
+  responseObj += "\"}";
   Serial.print("connection result:"); Serial.println(connRes);
   Serial.print("response obj:"); Serial.println(responseObj);
   server.send(200, "application/json", responseObj);

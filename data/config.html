@@ -128,6 +128,8 @@
     fetch('/wifisave', {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
+        console.log('wrongPass:', data.wrongPass);
+        console.log('data: ', data);
         fillWrongPassword(data.wrongPass);
         if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
         waitingForFormResponse(false, 'wifiSaveForm')
