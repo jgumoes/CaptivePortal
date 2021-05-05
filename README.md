@@ -1,8 +1,16 @@
+# What is this
+
+This is a captive portal to allow a user to upload wifi network credentials to an ESP8266/ESP32 microcontroller. The microcontroller creates a wireless network on boot, which a user can connect to and enter network details.
+
+This is probably the simplest, most intuitive method possible for a layperson to connect an ESP8266 project to their local WiFi. All they need to do is connect to the ESP's wireless network, press "sign in to network", and enter the ssid and password. I want this to be something my Gran can do.
+
+This project is intended to function as a library, being something that can be dropped into any ESP project. It started off as something that I can shove [Sinric Pro](https://sinric.pro/index.html) into for multiple smart-home projects I want to make. There's another project though, a Medicine Alarm Clock, that will likely need to talk to a server and will need internet connectivity to do so. It will recieve the network details through an accompanying app, so interacting with the portal through API calls has become an important requirement. I think this might be similar to how chromecast devices are connected to the internet.
+
 # Test Portal
 There is a Ruby Test Server for making changes to config.html. Once the html file is known to work, the server-side code is implemented on the microcontroller in C++.
 ## running the test server
 to run the test server:
-```sh
+```bash
 cd "ruby server test"
 rackup -o 0.0.0.0
 ```
@@ -12,6 +20,9 @@ on your phone, go to `{ip}:9292`
 
 i.e. on my phone right now, I have `http://192.168.0.229:9292`
 
+## running the real server
+
+Install [PlatformIO](https://platformio.org/) for VSCode, hit upload, build the filesytem image, upload the filesystem image, and you should see the device in the WiFi networks of your phone or computer.
 
 # Theory of Operation
 
