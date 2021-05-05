@@ -1,5 +1,5 @@
 # Test Portal
-this portal uses a fetch request to get the network ssids. it's probably not necessary, because the ESPAsyncWebServer docs say the loops should be possible in the templates, but it's nice to know that it works for the alarm clock.
+There is a Ruby Test Server for making changes to config.html. Once the html file is known to work, the server-side code is implemented on the microcontroller in C++.
 ## running the test server
 to run the test server:
 ```sh
@@ -12,30 +12,26 @@ on your phone, go to `{ip}:9292`
 
 i.e. on my phone right now, I have `http://192.168.0.229:9292`
 
-# Operation
 
-## stuff to look in to
+# Theory of Operation
 
- * [Respond with content coming from a File containing templates](https://github.com/me-no-dev/ESPAsyncWebServer#respond-with-content-coming-from-a-file-containing-templates)
- * [chunked response](https://github.com/me-no-dev/ESPAsyncWebServer#chunked-response)
- * [Param Rewrite With Matching](https://github.com/me-no-dev/ESPAsyncWebServer#param-rewrite-with-matching)
- * [Respond with content using a callback containing templates](https://github.com/me-no-dev/ESPAsyncWebServer#respond-with-content-using-a-callback-containing-templates)
- * [Chunked Response containing templates](https://github.com/me-no-dev/ESPAsyncWebServer#chunked-response-containing-templates)
+The ESP microcontroller opens an Access Point on boot. When a client connects to this network, they are prompted to sign in to the network. The client requests the captive portal, and is served a static page from the flash file system (LittleFS). The client fills in the credentials (or changes any of the advanced settings), and makes a post request to the microcontroller using the fetch API. The server process the request, and responds with a json object, and the webpage adjusts itself accordingly.
 
-## Static or Dynamic?
+The webpage currently makes a fetch request for the server details (i.e. device name), however I would like to replace that with templating or something similar, as there is currently a noticable delay between the page loading and certain elements being filled.
 
-There are two ways to fill out the server flags on the config page:
-  1. fill them out server-side
-  2. fill them out dynamically using javascript functions
+## Fetch is totally fetch
 
-### 1. static
-it might be possible to fill in the webpage on the server side while reading from program memory. the section in the README of  ESPAsyncWebServer called [Specifying Template Processor callback](https://github.com/me-no-dev/ESPAsyncWebServer#specifying-template-processor-callback) shows a way to serve a static webpage from a file containing templates, that uses a function specifically optimised for SPIFFS (though I'm not sure that it won't work with littleFS).
+There are a couple of advantages to using fetch to modify a static webpage, one of which being that it should almost work out-of-box with a hyperthetical mobile app that might be needed for my Medicine Alarm Clock.
 
-### 2. dynamic
+The biggest one, though, is that it allows me to mitigate a very specific server-side bug: When the device tries to connect with bad credentials, it will at some point disconnect from the station or switch channel to the one the network is on, and then try to reconnect. This momentary drop in signal will cause the fetch request to fail, even though the connection is still there. Needless to say, it was a very stressfull Tuesday figuring this out. Using fetch requests gives me a way handling this non-response in a user-friendly manner.
 
-This would be javascript functions filling out the flags on the client side. The flags would either be served by putting them in the url as params, or having a javascript function that will make a get request to the server, then extract the flags from the response object. This should only be done if I can't crack the static webpage.
+The server will explicitly stop the connection process after the timeout is reached, ensuring this issue only exists for around 10 seconds at a time. It's also presumed that a failure to connect within the timeout is due to the password being wrong (this has been mostly true based on observations). The page catches the failed fetch request and displays a 'wrong password' message.
+
+I would like to expand this further, by storing the state of the connection attempt, and if the same credentials are attempted again, this result is returned instead of re-attempting the connection. If the connection drops, the captive portal can make repeated requests with the same info until it recieves a response (or reaches its own timeout). For now, though, if the attempt was successfull, attempting to connect to the network again will return 'connection successful', even when the password is wrong the second time.
 
 ## Network List
+
+The list of network SSIDs is collected with a fetch request from the portal.
 
 I would like if the webpage updated the wifi networks every 10 or so seconds. To do this, the webpage should make periodic GET requests to the server, that will then serve the wifi networks. A JS function will fill out the page elements.
 
