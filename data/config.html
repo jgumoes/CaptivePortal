@@ -125,7 +125,13 @@
     formData.append('ssid', wifiForm.elements.ssid.value)
     formData.append('pwd', wifiForm.elements.pwd.value)
     waitingForFormResponse(true, 'wifiSaveForm')
-    fetch('/wifisave', {method: 'POST', body: formData})
+    postForm(formData);
+  }
+
+  function postForm(formData, reattempt = true, route = '/wifisave'){
+    // reattempt signals whether this function should be called again
+    // if the fetch attempt fails
+    fetch(route, {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
         console.log('wrongPass:', data.wrongPass);
@@ -134,11 +140,14 @@
         if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
         waitingForFormResponse(false, 'wifiSaveForm')
       })
-      .catch(function(error) {
-        waitingForFormResponse(false, 'wifiSaveForm');
-        fillWrongPassword(true);
-        console.log(error);
-        globalError = error;
+      .catch(error => {
+        if(reattempt){postForm(formData, false, route)}
+        else{
+          waitingForFormResponse(false, 'wifiSaveForm');
+          fillWrongPassword(true);
+          console.log(error);
+          globalError = error;
+        }
       })
   }
 

@@ -34,11 +34,12 @@ The webpage currently makes a fetch request for the server details (i.e. device 
 
 There are a couple of advantages to using fetch to modify a static webpage, one of which being that it should almost work out-of-box with a hyperthetical mobile app that might be needed for my Medicine Alarm Clock.
 
-The biggest one, though, is that it allows me to mitigate a very specific server-side bug: When the device tries to connect with bad credentials, it will at some point disconnect from the station or switch channel to the one the network is on, and then try to reconnect. This momentary drop in signal will cause the fetch request to fail, even though the connection is still there. Needless to say, it was a very stressfull Tuesday figuring this out. Using fetch requests gives me a way handling this non-response in a user-friendly manner.
+The biggest one, though, is that it allows me to mitigate a very specific server-side bug: When the device tries to connect with bad credentials, it will at some point disconnect from the station or switch channel to the one the network is on, and then try to reconnect. This momentary drop in signal will cause the fetch request to fail, even though the connection is still there. Needless to say, it was a very stressfull Tuesday figuring all this out. Using fetch requests gives me a way handling this non-response in a user-friendly manner.
 
-The server will explicitly stop the connection process after the timeout is reached, ensuring this issue only exists for around 10 seconds at a time. It's also presumed that a failure to connect within the timeout is due to the password being wrong (this has been mostly true based on observations). The page catches the failed fetch request and displays a 'wrong password' message.
+Firstly, the server will explicitly stop the connection process after the timeout is reached, ensuring this issue only exists for around 30 seconds at a most. On the client side, if the server drops, it will send out a second fetch request that the server queues behind the first (which is unlikely to be completed). Once the first connection attempt is complete, it saves the result as well as the ssid and password. If the credentials from the second attempt match those from the previous attempt (in this instance they will), it will send the result from the previous attempt.
+![The client-server interaction that mitigates the issue of dropped connections during connection attempts.](diagrams/wifisave_dropped_network.png)
+It's also presumed that a failure to connect within the timeout is due to the password being wrong (this has been mostly true based on observations). The page catches the failed fetch request and displays a 'wrong password' message.
 
-I would like to expand this further, by storing the state of the connection attempt, and if the same credentials are attempted again, this result is returned instead of re-attempting the connection. If the connection drops, the captive portal can make repeated requests with the same info until it recieves a response (or reaches its own timeout). For now, though, if the attempt was successfull, attempting to connect to the network again will return 'connection successful', even when the password is wrong the second time.
 
 ## Network List
 
@@ -69,6 +70,21 @@ client->esp: "get '/network_list'"
 esp->client: "serves networks.json"
 ```
 
+### wifisave fetch requests 
+
+```
+alias client="client"
+alias server="server"
+
+client->server: "POST /wifisave"
+server->server: "begins attempt"
+server-->client: "switches radio, looses
+  connection to client"
+client->server: "reattempts previous POST request"
+server->server: "finishes or times out connection attempt"
+server->server: "saves result and credentials of attempt"
+server->client: "sends result from first attempt"
+```
 ### Saving Credentials Flow
 
 Below is the flowchart for saving a POSTed ssid and password. There could eventually be a check for if the wifi ssid has already been saved, so if the user enters a wrong (or no) password for a given network, it will try to connect using the stored password instead. This gives the user freedom to select a prefered network (i.e. if they have multiple routers at home, and the device has connected to the one with poor connection). This could of course be reduntant by having the device pick strongest availlable network stored, and re-assessing networks if the connection drops. I think it still could be nice to have though.
