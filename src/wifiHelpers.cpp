@@ -24,14 +24,18 @@ int attemptConnection(String& ssid, String& password){
     // this little statement is the culmination of an entire day of swearing. it is very important.
     WiFi.disconnect();
   }
-  lastConn.ssid = ssid; lastConn.password = password; lastConn.lastConnRes = connRes;
+  if (connRes == 3){ }
+  lastConn.ssid = ssid; lastConn.password = password; lastConn.lastConnRes = connRes; // store results and credentials
   return connRes;
 }
 
-bool connectWifi(String& ssid, String& password) {
+int connectWifi(String& ssid, String& password) {
   Serial.println("Connecting as wifi client...");
+  Serial.print("Wifi status:\t");
+  Serial.println(WiFi.status());
+  if(WiFi.status() == 3){ return 3; } // this guards against a good password being overwritten by a bad password
   int connRes = attemptConnection(ssid, password);
   Serial.print("connRes: ");
   Serial.println(connRes);
-  return connRes == 3 ? true : false;
+  return connRes;
 }

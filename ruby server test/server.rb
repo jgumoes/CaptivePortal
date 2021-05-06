@@ -82,13 +82,12 @@ class Portal < Sinatra::Base
       })
   end
 
-  get "/server_flags" do
+  get "/server_info" do
     @flags = session['flags']
     puts @flags.device_name
     flagJSON = JSON.generate({
       "deviceName" => @flags.device_name,
       "networkName" => @flags.network_name,
-      "nameChange" => @flags.name_change,
     })
 
     # reset flags

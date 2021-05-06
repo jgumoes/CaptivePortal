@@ -9,16 +9,6 @@ IPAddress apIP(172, 217, 28, 1);
 DNSServer dnsServer;
 
 #include <LittleFS.h>
-// const char* fsName = "LittleFS";
-// FS* fileSystem = &LittleFS;
-// LittleFSConfig fileSystemConfig = LittleFSConfig();
-
-String responseHTML = ""
-                      "<!DOCTYPE html><html lang='en'><head>"
-                      "<meta name='viewport' content='width=device-width'>"
-                      "<title>CaptivePortal</title></head><body>"
-                      "<h1>Hello World!</h1><p>This is a captive portal example."
-                      " All requests will be redirected here.</p></body></html>";
 
 void listDir(const char * dirname) {
   Serial.printf("Listing directory: %s\n", dirname);

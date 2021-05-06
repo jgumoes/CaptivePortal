@@ -40,7 +40,7 @@ void handleWifiSave(){
   String ssid = server.arg("ssid");
   String password = server.arg("pwd");
   // there should be a check for if a password for the ssid is already stored
-  bool connRes = connectWifi(ssid, password);
+  bool connRes = connectWifi(ssid, password) == 3 ? true : false;
   Serial.print("ssid:\t"); Serial.println(ssid);
   Serial.println("password:\t"); Serial.println(password);
   // server.sendHeader("Location", "wifi", true);
