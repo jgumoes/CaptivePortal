@@ -26,6 +26,7 @@ void listDir(const char * dirname) {
 }
 
 void setup() {
+  listDir("/");
   Serial.begin(115200);
   Serial.println("sketch started");
   WiFi.mode(WIFI_AP);

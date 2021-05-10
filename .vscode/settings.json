@@ -1,6 +1,7 @@
 {
   "files.associations": {
-    "functional": "cpp"
+    "functional": "cpp",
+    "map": "cpp"
   },
   "platformio-ide.activateOnlyOnPlatformIOProject": true
 }

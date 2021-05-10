@@ -106,3 +106,36 @@ ELSE
  END IF
 END IF
 ```
+
+### Boot Sequence
+
+```
+alias main = "main.cpp"
+alias webserver = "webserver"
+alias info = "webserverInfo"
+alias helpers = "wifiHelpers"
+
+main=>webserver: "setupWebServer()"
+webserver->info: "loadServerInfo()"
+webserver->helpers: "scan networks"
+webserver->info: "getDeviceName()"
+info-->webserver: "returns stored device name"
+# the softAP stuff should be moved into wifiHelpers
+webserver->webserver: "start softAP"
+webserver->helpers: "connectOnBoot()"
+helpers->info: "getSavedNetworks()"
+info-->helpers: "returns list of networks"
+helpers->helpers: "checks if any of the networks are available"
+# assuming it found one:
+helpers->info: "getPassword(ssid)"
+info-->helpers: "returns password"
+helpers->helpers: "attempts connection"
+
+# inside main()
+
+main->webserver: "handleWebServer()"
+webserver->helpers: "getConnectionStatus()"
+# this instead be WiFi.status()
+webserver->helpers: "scanNetworks()"
+helpers->helpers: "checks time since last scan"
+```

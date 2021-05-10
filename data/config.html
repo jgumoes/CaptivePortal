@@ -166,6 +166,7 @@
   }
 
   function fillNameChange(flags){
+    // this has been removed from server flags, but will need to be re-implemented somewhere
     const {deviceName, nameChange} = flags;
     var nameChangeSpan = document.getElementById('device_name_change');
     if (nameChange === true){
@@ -174,7 +175,6 @@
   }
 
   function fillDeviceName(flags){
-    // this has been removed from server flags, but will need to be re-implemented somewhere
     const {deviceName} = flags;
     var deviceNameSpan = document.getElementById('device_name');
     deviceNameSpan.innerText = deviceName;
@@ -203,8 +203,8 @@
 
   function fillFlaggedElements(flags){
     console.log(flags);
-    // fillDeviceName(flags)
-    fillNameChange(flags)
+    fillDeviceName(flags)
+    // fillNameChange(flags)
     fillConnectionStatus(flags)
   }
 

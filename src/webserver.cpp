@@ -1,8 +1,10 @@
 #include <ESP8266WebServer.h>
 #include <LittleFS.h>
 #include "wifiHelpers.h"
+#include "webserverInfo.h"
 
 ESP8266WebServer server(80);
+WebServerInfoClass WebServerData;
 
 void handlePortalClient(){
   server.handleClient();
@@ -59,11 +61,21 @@ void handleWifiSave(){
   Serial.println("#########################################");
 }
 
+void handleServerInfo() {
+  WebServerData.deviceName();
+  Serial.println("handleServerInfo");
+  char responseObj[WebServerData.infoResponseSize()];
+  WebServerData.getServerInfo(responseObj);
+  Serial.print(responseObj);
+  server.send(200, "application/json", responseObj);
+}
+
 void setupWebServer () {
   // loadServerInfo();
   server.on("/captive_portal", handleCaptivePortal);
   server.on("/scan_networks", sendScanNetworks);
   server.on("/wifisave", handleWifiSave);
+  server.on("/server_info", handleServerInfo);
   // reply to all requests with same HTML
   server.onNotFound([]() {
     // Serial.println("handling Not Found");
