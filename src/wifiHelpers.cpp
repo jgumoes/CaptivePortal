@@ -1,4 +1,5 @@
 #include <ESP8266WebServer.h>
+#include <webserverInfo.h>
 
 u_int connAttemptTimeout = 30000; // 20 seconds is enough to get a response from my janky ass-router
 
@@ -24,7 +25,7 @@ int attemptConnection(String& ssid, String& password){
     // this little statement is the culmination of an entire day of swearing. it is very important.
     WiFi.disconnect();
   }
-  if (connRes == 3){ }
+  if (connRes == 3){ WebServerData.currentNetwork = ssid; }
   lastConn.ssid = ssid; lastConn.password = password; lastConn.lastConnRes = connRes; // store results and credentials
   return connRes;
 }

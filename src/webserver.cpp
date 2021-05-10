@@ -4,7 +4,6 @@
 #include "webserverInfo.h"
 
 ESP8266WebServer server(80);
-WebServerInfoClass WebServerData;
 
 void handlePortalClient(){
   server.handleClient();

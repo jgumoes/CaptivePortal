@@ -40,7 +40,6 @@ getDeviceName() - returns the device name
 
 // constructor
 WebServerInfoClass::WebServerInfoClass(){
-  // savedNetworks = new Dictionary();
   currentNetwork = "";
   loadServerInfo();
 }
@@ -61,7 +60,7 @@ void WebServerInfoClass::getServerInfo(char* bufferStr){
 //   // saves the server info to local storage.
 // }
 
-// bool saveNetwork(String ssid, String pwd){
+// bool WebServerInfoClass::saveNetwork(String ssid, String pwd){
 //   // saves a new network
 // }
 
@@ -76,3 +75,5 @@ void WebServerInfoClass::loadServerInfo(){
     // saveServerInfo();
   }
 }
+
+WebServerInfoClass WebServerData;
