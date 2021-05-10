@@ -159,7 +159,7 @@
     else { form.setAttribute('class', 'show') }
   }
 
-  async function getServerFlags(){
+  async function getServerInfo(){
     fetch('/server_info', {method: 'GET'})
     .then(result => result.json())
     .then(data => fillFlaggedElements(data))
@@ -208,7 +208,7 @@
     fillConnectionStatus(flags)
   }
 
-  getServerFlags();
+  getServerInfo();
 </script>
 <script> // the network list is fetched and filled here
   async function getNetworkList(){

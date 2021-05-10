@@ -60,6 +60,7 @@ void handleWifiSave(){
 }
 
 void setupWebServer () {
+  // loadServerInfo();
   server.on("/captive_portal", handleCaptivePortal);
   server.on("/scan_networks", sendScanNetworks);
   server.on("/wifisave", handleWifiSave);
