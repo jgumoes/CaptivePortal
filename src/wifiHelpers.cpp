@@ -25,7 +25,8 @@ int attemptConnection(String& ssid, String& password){
     // this little statement is the culmination of an entire day of swearing. it is very important.
     WiFi.disconnect();
   }
-  if (connRes == 3){ WebServerData.currentNetwork = ssid; }
+  // WebServerData.currentNetwork = WiFi.SSID();
+  WebServerData.updateNetwork(WiFi.SSID(), password);
   lastConn.ssid = ssid; lastConn.password = password; lastConn.lastConnRes = connRes; // store results and credentials
   return connRes;
 }
@@ -38,5 +39,7 @@ int connectWifi(String& ssid, String& password) {
   int connRes = attemptConnection(ssid, password);
   Serial.print("connRes: ");
   Serial.println(connRes);
+  Serial.print("ssid:\t");
+  Serial.println(WebServerData.currentNetwork);
   return connRes;
 }

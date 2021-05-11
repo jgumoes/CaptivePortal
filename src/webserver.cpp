@@ -42,13 +42,6 @@ void handleWifiSave(){
   String password = server.arg("pwd");
   // there should be a check for if a password for the ssid is already stored
   bool connRes = connectWifi(ssid, password) == 3 ? true : false;
-  Serial.print("ssid:\t"); Serial.println(ssid);
-  Serial.println("password:\t"); Serial.println(password);
-  // server.sendHeader("Location", "wifi", true);
-  // server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-  // server.sendHeader("Pragma", "no-cache");
-  // server.sendHeader("Expires", "-1");
-  // server.send(200, "application/json", "{'wrongPass': 'doesn\'t matter'}");    // Empty content inhibits Content-length header so we have to close the socket ourselves.
   String responseObj = "{\"wrongPass\": ";
   responseObj += connRes ? "false" : "true";
   responseObj += "}";
@@ -77,10 +70,6 @@ void setupWebServer () {
   server.on("/server_info", handleServerInfo);
   // reply to all requests with same HTML
   server.onNotFound([]() {
-    // Serial.println("handling Not Found");
-    // String message = "URI: ";
-    // message += server.uri();
-    // Serial.println(message);
     handleCaptivePortal();
   });
   server.begin();

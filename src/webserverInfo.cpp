@@ -76,4 +76,15 @@ void WebServerInfoClass::loadServerInfo(){
   }
 }
 
+/*
+ * If ssid has a length, currentNetwork is updated and the new network is saved to local storage.
+ * @return true if network is saved
+ */
+bool WebServerInfoClass::updateNetwork(String ssid, String pwd){
+  currentNetwork = ssid;
+  if(ssid.length() == 0) { return false;}
+  return true;
+  // return saveServerInfo()
+}
+
 WebServerInfoClass WebServerData;

@@ -28,6 +28,8 @@ class WebServerInfoClass
     //functions
     void loadServerInfo();
     void getServerInfo(char* networkName);
+
+    bool updateNetwork(String ssid, String pwd);
 };
   extern WebServerInfoClass WebServerData;
 #endif

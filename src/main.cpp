@@ -50,6 +50,5 @@ void setup() {
 
 void loop() {
   dnsServer.processNextRequest();
-  // webServer.handleClient();
   handlePortalClient();
 }
