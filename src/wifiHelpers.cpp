@@ -18,7 +18,7 @@ int attemptConnection(String& ssid, String& password){
     Serial.println("credentials already attempted");
     return lastConn.lastConnRes;
   }
-  // WiFi.disconnect(); // i'm still on the fence as to whether to include this
+  WiFi.disconnect(); // i'm still on the fence as to whether to include this
   WiFi.begin(ssid, password);
   int connRes = WiFi.waitForConnectResult(connAttemptTimeout);
   if (connRes != 3){
@@ -34,7 +34,7 @@ int connectWifi(String& ssid, String& password) {
   Serial.println("Connecting as wifi client...");
   Serial.print("Wifi status:\t");
   Serial.println(WiFi.status());
-  if(WiFi.status() == 3){ return 3; } // this guards against a good password being overwritten by a bad password
+  // if(WiFi.status() == 3){ return 3; } // this guards against a good password being overwritten by a bad password
   int connRes = attemptConnection(ssid, password);
   Serial.print("connRes: ");
   Serial.println(connRes);

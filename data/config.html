@@ -134,10 +134,8 @@
     fetch(route, {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
-        console.log('wrongPass:', data.wrongPass);
-        console.log('data: ', data);
         fillWrongPassword(data.wrongPass);
-        if (!data.wrongPass){ fillConnectionStatus({'networkName': findChosenSSID()})}
+        fillConnectionStatus({'networkName': !data.wrongPass && formData.get('ssid')})
         waitingForFormResponse(false, 'wifiSaveForm')
       })
       .catch(error => {
@@ -146,12 +144,9 @@
           waitingForFormResponse(false, 'wifiSaveForm');
           fillWrongPassword(true);
           console.log(error);
-          globalError = error;
         }
       })
   }
-
-  let globalError;
 </script>
 <script> // html elements are filled and adjusted here
   function hideOrShowForm(form, hide){
@@ -182,6 +177,7 @@
 
   function fillConnectionStatus(flags){
     const {networkName} = flags;
+    console.log('fillConnectionStatus', networkName);
     var connectionStatusSpan = document.getElementById('connection_status')
     if (!networkName){
       connectionStatusSpan.innerText = "not connected to a network"

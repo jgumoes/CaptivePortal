@@ -41,7 +41,7 @@ class Portal < Sinatra::Base
   end
 
   post "/wifisave" do
-    sleep(25)
+    # sleep(25)
     @flags = session['flags']
     # puts session.keys
     if check_network(params['ssid'], params['pwd'])
