@@ -37,7 +37,6 @@ void sendScanNetworks() {
 void handleWifiSave(){
   Serial.println("#########################################");
   Serial.println("wifi save");
-  Serial.println(millis());
   String ssid = server.arg("ssid");
   String password = server.arg("pwd");
   // there should be a check for if a password for the ssid is already stored
@@ -45,12 +44,10 @@ void handleWifiSave(){
   String responseObj = "{\"wrongPass\": ";
   responseObj += connRes ? "false" : "true";
   responseObj += "}";
-  Serial.print("connection result:"); Serial.println(connRes);
-  Serial.print("response obj:"); Serial.println(responseObj);
   server.send(200, "application/json", responseObj);
   server.client().stop(); // Stop is needed because we sent no content length
-  Serial.println(millis());
   Serial.println("#########################################");
+  WebServerData.printSavedNetworks();
 }
 
 void handleServerInfo() {

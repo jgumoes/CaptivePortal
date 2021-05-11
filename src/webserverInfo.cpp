@@ -30,13 +30,10 @@ getPassword(ssid) - returns the password of the ssid
 getDeviceName() - returns the device name
 */
 
-#define _DICT_PACK_STRUCTURES
-#define _DICT_KEYLEN 32
-
 #include "webserverInfo.h"
 #include <LittleFS.h>
 #include <ArduinoJson.h>
-#include <map> // use this instead of Dictionary
+#include <map>
 
 // constructor
 WebServerInfoClass::WebServerInfoClass(){
@@ -60,10 +57,6 @@ void WebServerInfoClass::getServerInfo(char* bufferStr){
 //   // saves the server info to local storage.
 // }
 
-// bool WebServerInfoClass::saveNetwork(String ssid, String pwd){
-//   // saves a new network
-// }
-
 void WebServerInfoClass::loadServerInfo(){
   // loads the server info from local storage
   if(LittleFS.exists("serverInfo.json")){
@@ -76,15 +69,69 @@ void WebServerInfoClass::loadServerInfo(){
   }
 }
 
+// -----------------------------------------------------------------------------------------------------
+// -----------------------------------Update and Save the network---------------------------------------
+// -----------------------------------------------------------------------------------------------------
+
+
 /*
  * If ssid has a length, currentNetwork is updated and the new network is saved to local storage.
- * @return true if network is saved
+ * @return 0 if no network is passed, 1 if network is saved, -1 if savedNetworks is full
  */
-bool WebServerInfoClass::updateNetwork(String ssid, String pwd){
+int WebServerInfoClass::updateNetwork(String ssid, String pwd){
   currentNetwork = ssid;
-  if(ssid.length() == 0) { return false;}
-  return true;
+  if(ssid.length() == 0) { return 0;}
+  return saveNetwork(ssid, pwd);
+}
+
+/*
+ * private function to save the networks to local storage
+ * @return 1 if network is saved, -1 if savedNetworks is full
+ */
+int WebServerInfoClass::saveNetwork(String ssid, String pwd){
+  // saves a new network
+  addToSavedNetworks(ssid, pwd);
+  return 1;
   // return saveServerInfo()
 }
 
 WebServerInfoClass WebServerData;
+
+// -----------------------------------------------------------------------------------------------------
+// -------------------------------savedNetworks quasi-dictionary functions------------------------------
+// -----------------------------------------------------------------------------------------------------
+
+/* Add to the list of networks, and increment N_networks if ssid is new */
+void WebServerInfoClass::addToSavedNetworks(String ssid, String pwd){
+  if( savedNetworks.count(ssid) == 0){ ++N_networks; }
+  savedNetworks[ssid] = pwd;
+}
+
+/* Remove from the list of networks, and decrement N_networks if ssid existed */
+void WebServerInfoClass::removeFromSavedNetworks(String ssid){
+  if( savedNetworks.count(ssid) > 0){
+    --N_networks;
+    savedNetworks.erase(ssid);
+  }
+}
+
+/*
+ * Iterates over every network in savedNetwork
+ * @param callback lambda function or function pointer that takes String as a parameter
+ */
+void WebServerInfoClass::allSavedNetworkSSIDS(void (*callback)(String)){
+  std::map<String, String>::iterator itr;
+    for (itr = savedNetworks.begin(); itr != savedNetworks.end(); ++itr){
+      callback(itr->first);
+    }
+}
+
+/*
+ * Prints the name of every network stored in savedNetworks
+ */
+void WebServerInfoClass::printSavedNetworks(){
+  Serial.print("number of networks: "); Serial.println(NSavedNetworks());
+  Serial.println("Saved wifi networks");
+  allSavedNetworkSSIDS([](String ssid){Serial.println(ssid);});
+  Serial.println("...and that's everything");
+}
