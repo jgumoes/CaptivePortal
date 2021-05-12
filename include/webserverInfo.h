@@ -11,17 +11,21 @@ class WebServerInfoClass
   private:
     //variables
     String deviceName_;
+    static const char *configFile;
 
     // functions
     int saveNetwork(String ssid, String pwd);
+    bool saveServerInfo();
 
-    // savedNetworks variables
-    std::map<String, String> savedNetworks;
+    // storedNetworks variables
+    std::map<String, String> storedNetworks;
     int8_t N_networks = 0;
+    
 
-    // savedNetworks functions
-    void addToSavedNetworks(String ssid, String pwd);
-    void removeFromSavedNetworks(String ssid);
+    // storedNetworks functions
+    void allStoredNetworks(void (*callback)(String, String));
+    void addToStoredNetworks(String ssid, String pwd);
+    void removeFromStoredNetworks(String ssid);
 
   public:
     WebServerInfoClass();
@@ -41,12 +45,12 @@ class WebServerInfoClass
 
     int updateNetwork(String ssid, String pwd);
 
-    // savedNetworks variables
-    static const int8_t MaxSavedNetworks_ = 5;
-    // savedNetworks functions
-    int NSavedNetworks(){ return N_networks; }
-    void allSavedNetworkSSIDS(void (*callback)(String));
-    void printSavedNetworks();
+    // storedNetworks variables
+    static const int8_t MaxStoredNetworks_ = 5;
+    // storedNetworks functions
+    int NStoredNetworks(){ return N_networks; }
+    void allStoredNetworkSSIDS(void (*callback)(String));
+    void printStoredNetworks();
 };
   /* the only instance of WebServerInfoClass that should be allowed to exist */
   extern WebServerInfoClass WebServerData;

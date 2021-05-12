@@ -43,7 +43,7 @@ void setup() {
     return;
   }
 
-  // listDir("/");
+  listDir("/");
 
   setupWebServer();
 }

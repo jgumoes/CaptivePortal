@@ -47,7 +47,7 @@ void handleWifiSave(){
   server.send(200, "application/json", responseObj);
   server.client().stop(); // Stop is needed because we sent no content length
   Serial.println("#########################################");
-  WebServerData.printSavedNetworks();
+  WebServerData.printStoredNetworks();
 }
 
 void handleServerInfo() {
