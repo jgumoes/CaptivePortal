@@ -148,3 +148,5 @@ helpers->helpers: "checks time since last scan"
 * the settings are hidden, and there's a buttont at the bottom of the page that will draw the settings up over the main page
 * multiple saved networks: maybe if saved networks is full, the user sees a pop-up asking which networks to delete?
 * have the networks streamed periodically to the server using server-sent events
+
+* have platformio minify the html file (and possibly combine html, css and javascript) before uploading filesystem

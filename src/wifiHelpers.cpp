@@ -31,7 +31,37 @@ int attemptConnection(String& ssid, String& password){
   return connRes;
 }
 
-int connectWifi(String& ssid, String& password) {
+String prepareResponseObject(int connRes){
+  auto makeResponseObj  = [](String message){ return "{\"error\": \"" + message + "\"}";};
+
+  if (connRes == 100){
+    // if the maximum number of networks are already stored
+    return makeResponseObj("storageFull"); // todo: put the stored networks in the response object
+  }
+  
+  switch(connRes){
+    case WL_CONNECTED:
+      return makeResponseObj("none");
+    case WL_NO_SSID_AVAIL:
+      return makeResponseObj("networkLost");
+    case WL_CONNECT_FAILED:
+      return makeResponseObj("wrongPass");
+    case -1:  // timeout is presumed due to a wrong password
+      return makeResponseObj("wrongPass");
+    default:
+      return makeResponseObj("other");
+  }
+}
+
+/*
+ * Attempts to connect to the given wifi network.
+ * @returns the connection result to pass on to the webpage.
+ * i.e. returns "none" if connected without error;
+ *      returns "wrongPass" if the password was wrong or the connection timed out;
+ *      returns "storageFull" if the max number of networks has been reached;
+ *      returns "other" if the connection failed for any other reason;
+ */
+String connectWifi(String& ssid, String& password) {
   Serial.println("Connecting as wifi client...");
   Serial.print("Wifi status:\t");
   Serial.println(WiFi.status());
@@ -41,5 +71,6 @@ int connectWifi(String& ssid, String& password) {
   Serial.println(connRes);
   Serial.print("ssid:\t");
   Serial.println(WebServerData.currentNetwork);
-  return connRes;
+
+  return prepareResponseObject(connRes);
 }

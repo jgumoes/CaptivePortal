@@ -63,7 +63,7 @@
     <br>
     <div class='password'>
         <h3 class='h' for='pwd'>Enter Password:</h3><br>
-          <span id=wrong_password></span>
+          <span id=errSpan></span>
         <input type='text' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
@@ -113,7 +113,7 @@
   function waitingForFormResponse(waiting, formID){
     // this should work for wifiSaveForm, saveDeviceName, and any other forms that may be added along the way
     const form = document.getElementById(formID)
-    if (waiting){ fillWrongPassword(false) }
+    if (waiting){ fillErrorMessage("none") }
     hideOrShowForm(form, waiting)
     for (el of form.elements){ el.disabled = waiting }
   }
@@ -122,8 +122,14 @@
     // this COULD be refactored into a generic postForm function, but should it?
     const formData = new FormData();
     const wifiForm = document.getElementById('wifiSaveForm')
-    formData.append('ssid', wifiForm.elements.ssid.value)
+    const chosenSSID = wifiForm.elements.ssid.value
+    if(chosenSSID === ""){
+      fillErrorMessage("noNetworkSelected")
+      return false;
+    }
+    formData.append('ssid', chosenSSID)
     formData.append('pwd', wifiForm.elements.pwd.value)
+    console.log('formData', formData);
     waitingForFormResponse(true, 'wifiSaveForm')
     postForm(formData);
   }
@@ -134,15 +140,15 @@
     fetch(route, {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
-        fillWrongPassword(data.wrongPass);
-        fillConnectionStatus({'networkName': !data.wrongPass && formData.get('ssid')})
+        fillErrorMessage(data.error);
+        fillConnectionStatus({'networkName': data.error == "none" && formData.get('ssid')})
         waitingForFormResponse(false, 'wifiSaveForm')
       })
       .catch(error => {
         if(reattempt){postForm(formData, false, route)}
         else{
           waitingForFormResponse(false, 'wifiSaveForm');
-          fillWrongPassword(true);
+          fillErrorMessage("other");
           console.log(error);
         }
       })
@@ -187,14 +193,19 @@
     }
   }
 
-  function fillWrongPassword(wrongPass){
-    // const {wrongPass} = flags;
-    var wrongPasswordSpan = document.getElementById('wrong_password')
+  function fillErrorMessage(result){
+    // The function formally known as fillWrongPassword. Fills the error message
+    // maybe convert this into a pop-up? https://www.w3schools.com/howto/howto_js_popup.asp
+    var errorMessageSpan = document.getElementById('errSpan')
+
+    if (result === "none"){ errorMessageSpan.innerHTML = ""; return 1; }
     const htmlOptions = {
-      'true': "<label for='pwd' class=wrong>Wrong password</label><br>",
-      'false': ""
+      'wrongPass': "Wrong Password",
+      'networkLost': "Lost the Network",
+      'other': "Server Error",
+      'noNetworkSelected': "Please Select a Network Above"
     }
-    wrongPasswordSpan.innerHTML = htmlOptions[wrongPass]
+    errorMessageSpan.innerHTML = `<label for='pwd' class=wrong>${htmlOptions[result]}</label><br>`
   }
 
   function fillFlaggedElements(flags){

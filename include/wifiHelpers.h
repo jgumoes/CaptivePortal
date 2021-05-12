@@ -1,4 +1,4 @@
 #ifndef WIFIHELPERS_H
   #define WIFIHELPERS_H
-  int connectWifi(String&, String&);
+  String connectWifi(String&, String&);
 #endif

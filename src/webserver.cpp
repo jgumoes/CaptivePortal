@@ -40,10 +40,8 @@ void handleWifiSave(){
   String ssid = server.arg("ssid");
   String password = server.arg("pwd");
   // there should be a check for if a password for the ssid is already stored
-  bool connRes = connectWifi(ssid, password) == 3 ? true : false;
-  String responseObj = "{\"wrongPass\": ";
-  responseObj += connRes ? "false" : "true";
-  responseObj += "}";
+  // bool connRes = connectWifi(ssid, password) == 3 ? true : false;
+  String responseObj = connectWifi(ssid, password);
   server.send(200, "application/json", responseObj);
   server.client().stop(); // Stop is needed because we sent no content length
   Serial.println("#########################################");
@@ -81,13 +79,13 @@ void handleConfigJson() {
 void setupWebServer () {
   WebServerData.loadServerInfo();
   WebServerData.printStoredNetworks();
-  // loadServerInfo();
+
   server.on("/captive_portal", handleCaptivePortal);
   server.on("/scan_networks", sendScanNetworks);
   server.on("/wifisave", handleWifiSave);
   server.on("/server_info", handleServerInfo);
 
-  server.on("/config.json", handleConfigJson);
+  server.on("/config.json", handleConfigJson); // this is for development use only
   // reply to all requests with same HTML
   server.onNotFound([]() {
     // Serial.print("Handling not found:");
