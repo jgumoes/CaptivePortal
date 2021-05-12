@@ -59,6 +59,25 @@ void handleServerInfo() {
   server.send(200, "application/json", responseObj);
 }
 
+
+/* Returns the contents of config.json.
+ * For development use only.
+ */
+void handleConfigJson() {
+  // server.send(200, "text/json");
+  String path = WebServerData.configFileName();
+  if (LittleFS.exists(path)) {
+    // If the file exists
+    File file = LittleFS.open(path, "r");                 // Open it
+    server.streamFile(file, "text/json"); // And send it to the client
+    // Serial.println("file sent to client");
+    file.close();                                       // Then close the file again
+  }
+  else {
+    server.send(404, "text/html", "config file not found");
+  }
+}
+
 void setupWebServer () {
   WebServerData.loadServerInfo();
   WebServerData.printStoredNetworks();
@@ -67,8 +86,12 @@ void setupWebServer () {
   server.on("/scan_networks", sendScanNetworks);
   server.on("/wifisave", handleWifiSave);
   server.on("/server_info", handleServerInfo);
+
+  server.on("/config.json", handleConfigJson);
   // reply to all requests with same HTML
   server.onNotFound([]() {
+    // Serial.print("Handling not found:");
+    // Serial.println(server.uri());
     handleCaptivePortal();
   });
   server.begin();

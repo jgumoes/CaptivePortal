@@ -35,7 +35,7 @@ getDeviceName() - returns the device name
 #include <ArduinoJson.h>
 #include <map>
 
-const char *WebServerInfoClass::configFileName = "config.json";
+const char *WebServerInfoClass::configFileName_ = "config.json";
 
 // constructor
 WebServerInfoClass::WebServerInfoClass(){
@@ -72,7 +72,7 @@ bool WebServerInfoClass::saveServerInfo(){
   }
   // allStoredNetworks([storedNetworksJSON](String ssid, String pwd){storedNetworksJSON[ssid] = pwd;}); // capturing lambdas can't be used as function pointers. There are workarounds, but I don't understand them
 
-  File configFile = LittleFS.open(configFileName, "w");
+  File configFile = LittleFS.open(configFileName_, "w");
   if (!configFile){ return false; }
   // configFile.write();
   serializeJson(info, configFile);
@@ -85,10 +85,10 @@ bool WebServerInfoClass::saveServerInfo(){
  */
 bool WebServerInfoClass::loadServerInfo(){
   Serial.println("loadServerInfo");
-  if(LittleFS.exists(configFileName)){
+  if(LittleFS.exists(configFileName_)){
     // actually load the server info
     StaticJsonDocument<JsonResponseSize_> info;
-    File configFile = LittleFS.open(configFileName, "r");
+    File configFile = LittleFS.open(configFileName_, "r");
     DeserializationError error = deserializeJson(info, configFile);
     if(error){ return false; }
 

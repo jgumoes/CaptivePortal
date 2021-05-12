@@ -11,7 +11,7 @@ class WebServerInfoClass
   private:
     //variables
     String deviceName_;
-    static const char *configFileName;
+    static const char *configFileName_;
 
     // functions
     int saveNetwork(String ssid, String pwd);
@@ -46,7 +46,8 @@ class WebServerInfoClass
     int updateNetwork(String ssid, String pwd);
 
     // storedNetworks variables
-    static const int8_t MaxStoredNetworks_ = 5;
+    static const int8_t MaxStoredNetworks_ = 1;
+    String configFileName(){ return String(configFileName_);};
     // storedNetworks functions
     int NStoredNetworks(){ return N_networks; }
     void allStoredNetworkSSIDS(void (*callback)(String));
