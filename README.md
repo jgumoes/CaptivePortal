@@ -142,8 +142,6 @@ helpers->helpers: "checks time since last scan"
 
 # Feature Wishlist
 
-## Webpage
-
 * when connected to a network, the network is removed from the Available Networks list and placed above it.
 * a button to disconnect from the network you're connected to
 * signal strength indicators

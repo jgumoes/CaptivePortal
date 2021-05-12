@@ -11,7 +11,7 @@ class WebServerInfoClass
   private:
     //variables
     String deviceName_;
-    static const char *configFile;
+    static const char *configFileName;
 
     // functions
     int saveNetwork(String ssid, String pwd);
@@ -40,7 +40,7 @@ class WebServerInfoClass
     int infoResponseSize();
 
     //functions
-    void loadServerInfo();
+    bool loadServerInfo();
     void getServerInfo(char* networkName);
 
     int updateNetwork(String ssid, String pwd);

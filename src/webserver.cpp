@@ -60,6 +60,8 @@ void handleServerInfo() {
 }
 
 void setupWebServer () {
+  WebServerData.loadServerInfo();
+  WebServerData.printStoredNetworks();
   // loadServerInfo();
   server.on("/captive_portal", handleCaptivePortal);
   server.on("/scan_networks", sendScanNetworks);

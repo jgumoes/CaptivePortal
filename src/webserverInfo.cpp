@@ -35,7 +35,7 @@ getDeviceName() - returns the device name
 #include <ArduinoJson.h>
 #include <map>
 
-const char *WebServerInfoClass::configFile = "config.json";
+const char *WebServerInfoClass::configFileName = "config.json";
 
 // constructor
 WebServerInfoClass::WebServerInfoClass(){
@@ -60,11 +60,10 @@ void WebServerInfoClass::getServerInfo(char* bufferStr){
  * @return success
  */
 bool WebServerInfoClass::saveServerInfo(){
-  // saves the server info to local storage.
   StaticJsonDocument<JsonResponseSize_> info;
   info["deviceName"] = deviceName_;
   JsonObject storedNetworksJSON = info.createNestedObject("storedNetworks");
-  // if (storedNetworksJSON == NULL){return false;}
+  if (storedNetworksJSON.isNull()){return false;}
 
   // I did try to keep this DRY, but couldn't manage it
   std::map<String, String>::iterator itr;
@@ -73,21 +72,40 @@ bool WebServerInfoClass::saveServerInfo(){
   }
   // allStoredNetworks([storedNetworksJSON](String ssid, String pwd){storedNetworksJSON[ssid] = pwd;}); // capturing lambdas can't be used as function pointers. There are workarounds, but I don't understand them
 
-  Serial.println("printing server info json");
-  serializeJsonPretty(info, Serial);
-  // File config = LittleFS.open
-  return 1;
+  File configFile = LittleFS.open(configFileName, "w");
+  if (!configFile){ return false; }
+  // configFile.write();
+  serializeJson(info, configFile);
+  return true;
 }
 
-void WebServerInfoClass::loadServerInfo(){
-  // loads the server info from local storage
-  if(LittleFS.exists("serverInfo.json")){
+/*
+ * Loads the server info from the local storage. If none exists, it creates one.
+ * @returns true if no errors were encountered
+ */
+bool WebServerInfoClass::loadServerInfo(){
+  Serial.println("loadServerInfo");
+  if(LittleFS.exists(configFileName)){
     // actually load the server info
+    StaticJsonDocument<JsonResponseSize_> info;
+    File configFile = LittleFS.open(configFileName, "r");
+    DeserializationError error = deserializeJson(info, configFile);
+    if(error){ return false; }
+
+    deviceName_ = info["deviceName"] | "ESP Captive Portal";  // load the deviceName
+
+    // load the saved networks
+    JsonObject storedNetworksJSON = info["storedNetworks"];
+    for (JsonPair network : storedNetworksJSON ) {
+      addToStoredNetworks(network.key().c_str(), network.value());
+    }
+    printStoredNetworks();
+    return true;
   }
   else{
     // create a new server info and put it in storage
     deviceName_ = "ESP Captive Portal";
-    saveServerInfo();
+    return saveServerInfo();
   }
 }
 
@@ -113,7 +131,6 @@ int WebServerInfoClass::updateNetwork(String ssid, String pwd){
 int WebServerInfoClass::saveNetwork(String ssid, String pwd){
   // saves a new network
   addToStoredNetworks(ssid, pwd);
-  // return 1;
   return saveServerInfo();
 }
 
