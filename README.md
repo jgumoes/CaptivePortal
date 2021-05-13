@@ -152,6 +152,8 @@ helpers->helpers: "checks time since last scan"
 * have the networks streamed periodically to the server using server-sent events
 * maybe a more modern aesthetic? i.e. white with 3d elements?
 
+* have the portal timeout if the connection is successful, but don't close if someone is still connected
+
 * allow storageFull process to happen when the actual storage is full, not just when the number exceeds max
 * refactor the storedNetworks process to be bound only by file space instead of by number
 * have platformio minify the html file (and possibly combine html, css and javascript) before uploading filesystem [this might help](https://community.platformio.org/t/question-esp32-compress-files-in-data-to-gzip-before-upload-possible-to-spiffs/6274)

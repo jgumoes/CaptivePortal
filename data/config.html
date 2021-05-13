@@ -95,6 +95,18 @@
 </form>
 <br><br>
 
+<div id="deleteNetworksPopup" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="closePopup">&times;</span>
+    <p>The storage is too full to save any more networks!</p>
+    <p>Select which networks to forget:</p>
+    <div id="deleteNetworkList"></div>
+  </div>
+
+</div>
+
 <script> // form POSTs will get handled here
 
   document.getElementById('pwd').addEventListener('keypress', (e) => handleFormEnter(e, 'pwd'))
@@ -229,30 +241,31 @@
     console.log('ssids: ' + data);
     var networkDiv = document.getElementById('network_list')
     var ssids = data.network_list
-    var disabled = ``
+    var disabled = false;
     if(ssids.length === 0){
       ssids = ["No Networks Found"]
-      disabled = `disabled=true `
+      disabled = true;
       disableConnectButton();
     }
 
     networkDiv.innerHTML = "";
 
-    for (ssid of ssids){
-      html = `<label class='radios'>${ssid}` +
-        `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
-        // if ssid == last_ssid then page += 'checked="true"' end
-        disabled +
-        `required>` +
-        `<span class='checkmark'></span>` +
-      `</label>`
-      // console.log(html);
-      // networkDiv.innerHTML = html;
-      networkDiv.insertAdjacentHTML("afterbegin", html)
-    }
+    networkListConstructor(ssids, networkDiv);
+
+    if(disabled){document.getElementsByName("ssid")[0].disabled = true;}
+    // todo: check last attempted network (if needed for refreshing the networks)
 
     var attempted_network = data.attempted_network
     document.getElementById(attempted_network).checked = true
+  }
+
+  function networkListConstructor(ssids, targetDiv, type='radios'){
+    for (ssid of ssids){
+      html = `<label class=${type}>${ssid}` +
+        `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
+        `required><span class='checkmark'></span></label>`
+     targetDiv.insertAdjacentHTML("afterbegin", html)
+    }
   }
 
   function disableConnectButton(){
