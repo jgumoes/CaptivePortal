@@ -142,11 +142,16 @@ helpers->helpers: "checks time since last scan"
 
 # Feature Wishlist
 
+* for the device name change function on the webpage to be functional
+
 * when connected to a network, the network is removed from the Available Networks list and placed above it.
 * a button to disconnect from the network you're connected to
 * signal strength indicators
-* the settings are hidden, and there's a buttont at the bottom of the page that will draw the settings up over the main page
+* the settings are hidden, and there's a button at the bottom of the page that will draw the settings up over the main page
 * multiple saved networks: maybe if saved networks is full, the user sees a pop-up asking which networks to delete?
 * have the networks streamed periodically to the server using server-sent events
+* maybe a more modern aesthetic? i.e. white with 3d elements?
 
-* have platformio minify the html file (and possibly combine html, css and javascript) before uploading filesystem
+* allow storageFull process to happen when the actual storage is full, not just when the number exceeds max
+* refactor the storedNetworks process to be bound only by file space instead of by number
+* have platformio minify the html file (and possibly combine html, css and javascript) before uploading filesystem [this might help](https://community.platformio.org/t/question-esp32-compress-files-in-data-to-gzip-before-upload-possible-to-spiffs/6274)

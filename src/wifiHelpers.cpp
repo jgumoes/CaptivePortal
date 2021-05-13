@@ -14,7 +14,8 @@ struct lastConnectionResult {
 int attemptConnection(String& ssid, String& password){
   Serial.print("status: ");
   Serial.println(WiFi.status());
-  if (lastConn.ssid == ssid && lastConn.password == password){
+  int previousResult = lastConn.lastConnRes;
+  if (lastConn.ssid == ssid && lastConn.password == password && (previousResult == 3 || previousResult == 4)){
     Serial.println("credentials already attempted");
     return lastConn.lastConnRes;
   }
@@ -25,18 +26,21 @@ int attemptConnection(String& ssid, String& password){
     // this little statement is the culmination of an entire day of swearing. it is very important.
     WiFi.disconnect();
   }
-  // WebServerData.currentNetwork = WiFi.SSID();
-  WebServerData.updateNetwork(WiFi.SSID(), password);
+
   lastConn.ssid = ssid; lastConn.password = password; lastConn.lastConnRes = connRes; // store results and credentials
-  return connRes;
+  if(WebServerData.updateNetwork(WiFi.SSID(), password) == 0){
+    lastConn.lastConnRes = NETWORK_STORAGE_FULL;
+  }
+  return lastConn.lastConnRes;
 }
 
 String prepareResponseObject(int connRes){
   auto makeResponseObj  = [](String message){ return "{\"error\": \"" + message + "\"}";};
 
-  if (connRes == 100){
+  if (connRes == NETWORK_STORAGE_FULL){
     // if the maximum number of networks are already stored
-    return makeResponseObj("storageFull"); // todo: put the stored networks in the response object
+    // return makeResponseObj("storageFull"); // todo: put the stored networks in the response object
+    return WebServerData.storageFullResponseObj();
   }
   
   switch(connRes){

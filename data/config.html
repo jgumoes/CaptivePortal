@@ -104,7 +104,7 @@
     const postForms = {'pwd': postWifiSaveForm} // which form-sending-function to call for which elementID
     if(keyCode === "Enter"){
       event.preventDefault();
-      postForms[elementID]()
+      postForms[elementID]();
       return false;
     }
     return true;
@@ -141,8 +141,8 @@
       .then(result => result.json())
       .then(data => {
         fillErrorMessage(data.error);
-        fillConnectionStatus({'networkName': data.error == "none" && formData.get('ssid')})
-        waitingForFormResponse(false, 'wifiSaveForm')
+        fillConnectionStatus({'networkName': data.error == "none" && formData.get('ssid')});
+        waitingForFormResponse(false, 'wifiSaveForm');
       })
       .catch(error => {
         if(reattempt){postForm(formData, false, route)}
@@ -203,7 +203,8 @@
       'wrongPass': "Wrong Password",
       'networkLost': "Lost the Network",
       'other': "Server Error",
-      'noNetworkSelected': "Please Select a Network Above"
+      'noNetworkSelected': "Please Select a Network Above",
+      "storageFull": "Network not Saved: Device Storage is Full" // todo: replace with a modal and remove
     }
     errorMessageSpan.innerHTML = `<label for='pwd' class=wrong>${htmlOptions[result]}</label><br>`
   }

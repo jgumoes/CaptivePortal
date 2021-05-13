@@ -3,6 +3,8 @@
 #include <WString.h>
 #include <map>
 
+#define NETWORK_STORAGE_FULL 100
+
 /* Stores and processes the CaptivePortal state variables, including handling the config.
  * Please don't declare a new one of these, but you can use WebServerData, I made it especially for you
  */
@@ -31,7 +33,7 @@ class WebServerInfoClass
     WebServerInfoClass();
 
     // variables
-    static const size_t JsonResponseSize_ = 256; // TODO: calculate actual value instead of just guessing
+    static const size_t JsonResponseSize_ = 512; // TODO: calculate actual value instead of just guessing
     String currentNetwork;
     // String savedSSIDS[10]; // replace with pointers? max networks is set to 10, but multiple saved networks isn't supported yet
 
@@ -52,6 +54,7 @@ class WebServerInfoClass
     int NStoredNetworks(){ return N_networks; }
     void allStoredNetworkSSIDS(void (*callback)(String));
     void printStoredNetworks();
+    String storageFullResponseObj();
 };
   /* the only instance of WebServerInfoClass that should be allowed to exist */
   extern WebServerInfoClass WebServerData;

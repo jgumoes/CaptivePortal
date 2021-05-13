@@ -84,6 +84,7 @@ void setupWebServer () {
   server.on("/scan_networks", sendScanNetworks);
   server.on("/wifisave", handleWifiSave);
   server.on("/server_info", handleServerInfo);
+  server.on("/favicon.ico", [](){ server.send(404);});
 
   server.on("/config.json", handleConfigJson); // this is for development use only
   // reply to all requests with same HTML

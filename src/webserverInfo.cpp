@@ -60,10 +60,13 @@ void WebServerInfoClass::getServerInfo(char* bufferStr){
  * @return success
  */
 bool WebServerInfoClass::saveServerInfo(){
+  Serial.println("Saving Server Info");
   StaticJsonDocument<JsonResponseSize_> info;
   info["deviceName"] = deviceName_;
   JsonObject storedNetworksJSON = info.createNestedObject("storedNetworks");
   if (storedNetworksJSON.isNull()){return false;}
+  Serial.print("Max number of networks"); Serial.println(N_networks);
+  if(N_networks > MaxStoredNetworks_){ Serial.println("max stored networks reached"); return 0; }
 
   // I did try to keep this DRY, but couldn't manage it
   std::map<String, String>::iterator itr;
@@ -116,17 +119,17 @@ bool WebServerInfoClass::loadServerInfo(){
 
 /*
  * If ssid has a length, currentNetwork is updated and the new network is saved to local storage.
- * @return 0 if no network is passed, 1 if network is saved, -1 if storedNetworks is full
+ * @return 1 if network is saved, 0 if storedNetworks is full, -1 if no network is passed
  */
 int WebServerInfoClass::updateNetwork(String ssid, String pwd){
   currentNetwork = ssid;
-  if(ssid.length() == 0) { return 0;}
+  if(ssid.length() == 0) { return -1;}
   return saveNetwork(ssid, pwd);
 }
 
 /*
  * private function to save the networks to local storage
- * @return 1 if network is saved, 0 if not saved, -1 if storedNetworks is full
+ * @return 1 if network is saved, 0 if storedNetworks is full, -1 if not saved
  */
 int WebServerInfoClass::saveNetwork(String ssid, String pwd){
   // saves a new network
@@ -185,4 +188,22 @@ void WebServerInfoClass::printStoredNetworks(){
   Serial.println("Saved wifi networks:");
   allStoredNetworkSSIDS([](String ssid){Serial.println(ssid);});
   Serial.println("...and that's everything");
+}
+
+/* Prepares a response object containing a list of stored networks
+ * todo: refactor this whole process to pass a reference to the server
+ * @returns the storage ojbect in full as a string.
+ */
+String WebServerInfoClass::storageFullResponseObj(){
+  StaticJsonDocument<JsonResponseSize_> responseInfo;
+  responseInfo["error"] = "storageFull";
+  JsonArray storedNetworksJSON = responseInfo.createNestedArray("storedNetworks");
+  // I did try to keep this DRY, but couldn't manage it
+  std::map<String, String>::iterator itr;
+  for (itr = storedNetworks.begin(); itr != storedNetworks.end(); ++itr){
+    storedNetworksJSON.add(itr->first);
+  }
+  String responseObj;
+  serializeJson(responseInfo, responseObj);
+  return responseObj;
 }
