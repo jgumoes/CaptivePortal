@@ -80,7 +80,7 @@ class Portal < Sinatra::Base
     puts @flags.attempted_network
     content_type 'application/json'
     JSON.generate({
-      "network_list" => scan_networks(true),
+      "network_list" => scan_networks(),
       "attempted_network" => @flags.attempted_network,
       })
   end

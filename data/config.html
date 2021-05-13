@@ -41,6 +41,49 @@
 
       .SubName {margin-top: 10px;}
       .NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
+
+      /* deleteNetworkPopups modal stuff */
+      .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      }
+
+      .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+      }
+
+      /* The Close Button */
+      .closePopup {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+      }
+
+      .closePopup:hover,
+      .closePopup:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      #deleteNetworkList {
+        display: flex;
+        flex-direction: column;
+      }
     </style>
   </head>
 <body style='max-width: 580px;'>
@@ -96,16 +139,26 @@
 <br><br>
 
 <div id="deleteNetworksPopup" class="modal">
-
   <!-- Modal content -->
   <div class="modal-content">
-    <span class="closePopup">&times;</span>
+    <span class="closePopup" onclick="showDelNetPopup(false)">&times;</span>
     <p>The storage is too full to save any more networks!</p>
     <p>Select which networks to forget:</p>
     <div id="deleteNetworkList"></div>
   </div>
-
 </div>
+
+<script> // deal with the deleteNetworksPopup here
+function showDelNetPopup(show){
+  document.getElementById("deleteNetworksPopup").style.display = show ? "block" : "none";
+}
+
+function deleteNetworksPopup(data){
+    showDelNetPopup(true);
+    const delListDiv = document.getElementById("deleteNetworkList");
+    networkListConstructor(data["storedNetworks"], delListDiv, "checkbox");
+  }
+</script>
 
 <script> // form POSTs will get handled here
 
@@ -155,6 +208,7 @@
         fillErrorMessage(data.error);
         fillConnectionStatus({'networkName': data.error == "none" && formData.get('ssid')});
         waitingForFormResponse(false, 'wifiSaveForm');
+        if(data.error === "storageFull"){ deleteNetworksPopup(data);}
       })
       .catch(error => {
         if(reattempt){postForm(formData, false, route)}
@@ -248,8 +302,6 @@
       disableConnectButton();
     }
 
-    networkDiv.innerHTML = "";
-
     networkListConstructor(ssids, networkDiv);
 
     if(disabled){document.getElementsByName("ssid")[0].disabled = true;}
@@ -259,11 +311,12 @@
     document.getElementById(attempted_network).checked = true
   }
 
-  function networkListConstructor(ssids, targetDiv, type='radios'){
+  function networkListConstructor(ssids, targetDiv, type='radio'){
+    targetDiv.innerHTML = "";
     for (ssid of ssids){
-      html = `<label class=${type}>${ssid}` +
-        `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
-        `required><span class='checkmark'></span></label>`
+      html = `<label class=${type}s>` +
+        `<input id="${ssid}" type=${type} name='ssid' value=\"${ssid}\" ` +
+        `required><span class='checkmark'></span>${ssid}</label>`
      targetDiv.insertAdjacentHTML("afterbegin", html)
     }
   }
