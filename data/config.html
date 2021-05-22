@@ -11,19 +11,32 @@
       .h {text-align: center;margin-bottom: -20px;}
 
       .wrong {margin-left: 10%;color:red;font-size: 20px;}
-      .radios {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/
+      .ssidButton {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/
         margin-bottom: 12px;  /* vertical padding between buttons */
         margin-left: 5px;   /* left padding */
-        cursor: pointer;font-size: 22px;}
+        cursor: pointer;
+        font-size: 22px;}
 
-      .radios input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
+      .saveNetwork .ssidButton input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
       .checkmark {position: absolute;top: 0;left: 0;height: 26px;width: 26px;background-color: #eee;border-radius: 50%; }   /* Create a custom radio button */
-      .radios:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
-      .radios input:checked ~ .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
+      .ssidButton:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
+      .ssidButton input:checked ~ .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
+      /* .ssidButton {border-style: solid;} */
+
+      /* .modal-content #chosen .checkmark {top: 3; left 3; height: 20px; width: 20px;}  */
+      
       .checkmark:after {content: '';position: absolute;display: none;} /* Create the indicator (the dot/circle - hidden when not checked) */
-      .radios input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
-      .radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
-      .connect {letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;background-color: #4CAF50;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
+      .ssidButton input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
+      .ssidButton .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
+
+      /* submit buttons */
+      .connect, .delete {
+        letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
+
+      .connect { background-color: #4CAF50;}
+
+      .delete { background-color: #ff0000bf;}
+
       .namechange_label_container { 
         margin-right:auto;display: inline-block;}
       .namechange_label {text-align: right; display: inline-block; max-width: 215px; float: right;}
@@ -84,6 +97,11 @@
         display: flex;
         flex-direction: column;
       }
+
+      #deleteNetworkList #chosen{
+        border-style: inset;
+        border-radius: 13px;
+      }
     </style>
   </head>
 <body style='max-width: 580px;'>
@@ -99,7 +117,7 @@
     <h4 class='h'>(refresh if any are missing)</h4>
     <br><br>
 
-    <div id="network_list">
+    <div id="network_list" class="saveNetwork">
       <div style="text-align: center;">Scanning for networks...</div>
     </div>
         
@@ -145,6 +163,7 @@
     <p>The storage is too full to save any more networks!</p>
     <p>Select which networks to forget:</p>
     <div id="deleteNetworkList"></div>
+    <input id="deleteButton" type="button" class="delete" value="Forget Networks">
   </div>
 </div>
 
@@ -156,7 +175,7 @@ function showDelNetPopup(show){
 function deleteNetworksPopup(data){
     showDelNetPopup(true);
     const delListDiv = document.getElementById("deleteNetworkList");
-    networkListConstructor(data["storedNetworks"], delListDiv, "checkbox");
+    networkListConstructor(data["storedNetworks"], delListDiv, "checkbox", "delNetList");
   }
 </script>
 
@@ -302,7 +321,7 @@ function deleteNetworksPopup(data){
       disableConnectButton();
     }
 
-    networkListConstructor(ssids, networkDiv);
+    networkListConstructor(ssids, networkDiv, 'radio', 'ssidButton');
 
     if(disabled){document.getElementsByName("ssid")[0].disabled = true;}
     // todo: check last attempted network (if needed for refreshing the networks)
@@ -311,13 +330,28 @@ function deleteNetworksPopup(data){
     document.getElementById(attempted_network).checked = true
   }
 
-  function networkListConstructor(ssids, targetDiv, type='radio'){
+  function setLabelCheck(element){
+    if(element.type === "radio"){
+      for (el of document.querySelectorAll("input[type=radio]")){
+        el.parentElement.id = "not_chosen";
+      }
+    }
+    const parent = element.parentElement;
+    console.log('setLabelCheck:', parent);
+    parent.id = element.checked ? "chosen" : "not_chosen";
+  }
+
+  function networkListConstructor(ssids, targetDiv, type, className){
     targetDiv.innerHTML = "";
+    check = type == "radio" ? "<span class='checkmark'></span>" : "";
     for (ssid of ssids){
-      html = `<label class=${type}s>` +
-        `<input id="${ssid}" type=${type} name='ssid' value=\"${ssid}\" ` +
-        `required><span class='checkmark'></span>${ssid}</label>`
-     targetDiv.insertAdjacentHTML("afterbegin", html)
+      const cam_name = ssid.replaceAll(/\s/ig, "_");
+      html = `<label class='ssidButton' name=${cam_name}>` +
+        `<input id="${cam_name}" type=${type} name='ssid' value=\"${ssid}\" ` +
+        // `onClick="setLabelCheck("input[type=${type}#${cam_name}]")"` +
+        `onClick="setLabelCheck(this)" ` +
+        `required>${check}${ssid}</label>`
+     targetDiv.insertAdjacentHTML("afterbegin", html);
     }
   }
 
