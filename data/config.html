@@ -5,31 +5,113 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>WiFi Config</title>
     <style>
+      :root{
+        --ssidButton-padding: 5px;
+      }
+
       * {font-family: Helvetica;}
 
       body {margin: 3%;background-color: lightblue;}
       .h {text-align: center;margin-bottom: -20px;}
 
       .wrong {margin-left: 10%;color:red;font-size: 20px;}
-      .ssidButton {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/
+      .ssidButton {
+        /* display: flex; */
+        align-items: center;
+        position: relative;/*padding for the radio button labels*/
         margin-bottom: 12px;  /* vertical padding between buttons */
-        margin-left: 5px;   /* left padding */
+        margin-top: 12px;
+        margin-left: 15px;   /* left padding */
         cursor: pointer;
-        font-size: 22px;}
+        font-size: 22px;
+      }
 
-      .saveNetwork .ssidButton input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
-      .checkmark {position: absolute;top: 0;left: 0;height: 26px;width: 26px;background-color: #eee;border-radius: 50%; }   /* Create a custom radio button */
-      .ssidButton:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
-      .ssidButton input:checked ~ .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
-      /* .ssidButton {border-style: solid;} */
+      .ssidButton label{
+        padding: var(--ssidButton-padding);
+      }
 
-      /* .modal-content #chosen .checkmark {top: 3; left 3; height: 20px; width: 20px;}  */
+      .saveNetwork .ssidButton label {margin-left: 20px;}
       
-      .checkmark:after {content: '';position: absolute;display: none;} /* Create the indicator (the dot/circle - hidden when not checked) */
-      .ssidButton input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
-      .ssidButton .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
+      .saveNetwork#network_list {margin-inline: 5%;}
 
-      /* submit buttons */
+      .ssidButton input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
+      .saveNetList .checkmark {position: absolute; flex-shrink: 0; height: 26px;width: 26px;background-color: #eee;border-radius: 50%; }   /* Create a custom radio button */
+      .ssidButton:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
+      .saveNetwork .ssidButton input:checked ~ .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
+      input:checked ~ .borderBox {opacity: 1;}
+
+      .ssidButton input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
+
+  /* create checkmark */
+  .checkmark .checked {
+    border-radius: 50%;
+    height: 8px;
+    width: 8px;
+    margin: 9px;
+    background-color: white;
+  }
+
+  .borderBox { height: 100%;
+    opacity: 0;
+    width: 100%;
+    border: 1px solid black;
+    position: absolute;
+    z-index: -1;
+  }
+
+  .ssidButton input:checked ~ label::before {
+    border-width: 1px solid black;
+    border-right-width: 0px;
+    width: 10px;
+    height: 1em;
+  }
+
+  /* show checkmark */
+  #saveNetList .ssidButton input:checked + .borderBox + .checkmark .checked {
+    opacity: 1;
+  }
+
+  /* hide checkmark */
+  .ssidButton input:not(:checked) + .borderBox + .checkmark .checked {
+    opacity: 0;
+  }
+
+  /* forget-networks checkbox */
+
+  #deleteNetworkList .ssidButton label {position: relative;
+		padding-left: 1.5em;
+		font-size: 1.05em;
+		line-height: 1.7;
+		cursor: pointer;
+	}
+
+  #deleteNetworkList .ssidButton label:before {
+    position: absolute;
+    content: '';
+    height: 1em;
+    width: 1em;
+    border: 1px solid black;
+    border-radius: 0.2em;
+    top: 0;
+    left: 0;
+  }
+
+  #deleteNetworkList .ssidButton label:after{
+    content: 'X';
+    position: absolute;
+    left: 0.24em;
+    color: #e40000;
+  }
+
+  #deleteNetworkList .ssidButton [type="checkbox"]:not(:checked) + label:after{opacity: 0;}
+  #deleteNetworkList .ssidButton [type="checkbox"]:checked + label:after{opacity: 1;}
+
+  #deleteNetworkList .ssidButton [type="checkbox"]:checked + label {
+        border-style: inset;
+        border-radius: 13px;
+      }
+
+    /* submit buttons */
       .connect, .delete {
         letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
 
@@ -98,10 +180,6 @@
         flex-direction: column;
       }
 
-      #deleteNetworkList #chosen{
-        border-style: inset;
-        border-radius: 13px;
-      }
     </style>
   </head>
 <body style='max-width: 580px;'>
@@ -321,7 +399,7 @@ function deleteNetworksPopup(data){
       disableConnectButton();
     }
 
-    networkListConstructor(ssids, networkDiv, 'radio', 'ssidButton');
+    networkListConstructor(ssids, networkDiv, 'radio', 'saveNetList');
 
     if(disabled){document.getElementsByName("ssid")[0].disabled = true;}
     // todo: check last attempted network (if needed for refreshing the networks)
@@ -343,14 +421,17 @@ function deleteNetworksPopup(data){
 
   function networkListConstructor(ssids, targetDiv, type, className){
     targetDiv.innerHTML = "";
-    check = type == "radio" ? "<span class='checkmark'></span>" : "";
+    check = type == "radio" ? "<div class='checkmark'><div class='checked'></div></div>" : "";
     for (ssid of ssids){
-      const cam_name = ssid.replaceAll(/\s/ig, "_");
-      html = `<label class='ssidButton' name=${cam_name}>` +
-        `<input id="${cam_name}" type=${type} name='ssid' value=\"${ssid}\" ` +
+      const cam_name = `${ssid.replaceAll(/\W/ig, "")}_${className}`;
+      html = `<div class="ssidButton ${className}"">` + 
+        `<input id="${cam_name}" type=${type} name='ssid' value=\"${ssid}\" class='ssidButton'` +
         // `onClick="setLabelCheck("input[type=${type}#${cam_name}]")"` +
-        `onClick="setLabelCheck(this)" ` +
-        `required>${check}${ssid}</label>`
+        // `onClick="setLabelCheck(this)" ` +
+        // `required>${check}${ssid}</label>`
+        `required><div class="borderBox"></div>${check}` +
+        `<label for="${cam_name}">${ssid}</label>` + 
+        `</div>`
      targetDiv.insertAdjacentHTML("afterbegin", html);
     }
   }
