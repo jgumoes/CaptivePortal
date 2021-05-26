@@ -14,8 +14,9 @@
       body {margin: 3%;background-color: lightblue;}
       .h {text-align: center;margin-bottom: -20px;}
 
-      .wrong {margin-left: 10%;color:red;font-size: 20px;}
+      .wrong {margin: 10px 10%; color:red;font-size: 20px;display: block;}
 
+      .h.pwd {margin-bottom: 0;}
     /* network lists */
 
       #deleteNetworkList {
@@ -104,7 +105,7 @@
       .hide {opacity: 20%; background: darkslategrey;}
 
       /* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
-      #pwd, #dev_name {width: 80%;margin-left: 10%;margin-top: 10px;}
+      #pwd, #dev_name {width: 80%;margin-inline: 10%;}
 
       .SubName {margin-top: 10px;}
       .NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
@@ -178,8 +179,8 @@
         
     <br>
     <div class='password'>
-        <h3 class='h' for='pwd'>Enter Password:</h3><br>
-          <span id=errSpan></span>
+        <h3 class='h pwd' for='pwd'>Enter Password:</h3>
+          <span id=errSpan class=wrong></span>
         <input type='text' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
@@ -340,7 +341,7 @@ function deleteNetworksPopup(data){
     // maybe convert this into a pop-up? https://www.w3schools.com/howto/howto_js_popup.asp
     var errorMessageSpan = document.getElementById('errSpan')
 
-    if (result === "none"){ errorMessageSpan.innerHTML = ""; return 1; }
+    if (result === "none"){ errorMessageSpan.innerText = ""; return 1; }
     const htmlOptions = {
       'wrongPass': "Wrong Password",
       'networkLost': "Lost the Network",
@@ -348,7 +349,8 @@ function deleteNetworksPopup(data){
       'noNetworkSelected': "Please Select a Network Above",
       "storageFull": "Network not Saved: Device Storage is Full" // todo: replace with a modal and remove
     }
-    errorMessageSpan.innerHTML = `<label for='pwd' class=wrong>${htmlOptions[result]}</label><br>`
+    errorMessageSpan.innerText = htmlOptions[result]
+    // `<label for='pwd' class=wrong>${htmlOptions[result]}</label><br>`
   }
 
   function fillFlaggedElements(flags){
