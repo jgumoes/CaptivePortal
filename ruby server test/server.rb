@@ -55,9 +55,12 @@ class Portal < Sinatra::Base
     print "wifisave params:"
     puts params
 
+    error_array = [wrong_pass, "networkLost", "other", "storageFull"]
+
     content_type 'application/json'
     JSON.generate({
-      'wrongPass' => wrong_pass
+      'error' => error_array[3],
+      "storedNetworks" => scan_networks()
     })
 
     # redirect "/server_flags"
@@ -100,7 +103,7 @@ class Portal < Sinatra::Base
 end
 
 def scan_networks(empty=false)
-  sleep(1)
+  # sleep(1)
   return [] if empty
   ["FBI Van number 2", "Stupid Starbucks", "Uncle Touchy\'s Mystery Van"]
 end

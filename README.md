@@ -143,6 +143,8 @@ helpers->helpers: "checks time since last scan"
 # Feature Wishlist
 
 * for the device name change function on the webpage to be functional
+* to be fixed: not all of the networks appear (have to refresh page several times to find my one)
+* [reduce/replace/clean up the use of strings](https://majenko.co.uk/blog/evils-arduino-strings)
 
 * when connected to a network, the network is removed from the Available Networks list and placed above it.
 * a button to disconnect from the network you're connected to
@@ -151,6 +153,8 @@ helpers->helpers: "checks time since last scan"
 * multiple saved networks: maybe if saved networks is full, the user sees a pop-up asking which networks to delete?
 * have the networks streamed periodically to the server using server-sent events
 * maybe a more modern aesthetic? i.e. white with 3d elements?
+
+* have the portal timeout if the connection is successful, but don't close if someone is still connected
 
 * allow storageFull process to happen when the actual storage is full, not just when the number exceeds max
 * refactor the storedNetworks process to be bound only by file space instead of by number

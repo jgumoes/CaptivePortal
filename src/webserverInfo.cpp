@@ -48,11 +48,23 @@ int WebServerInfoClass::infoResponseSize() { return JsonResponseSize_; }
 String WebServerInfoClass::deviceName() { return deviceName_; }
 
 //public functions
-void WebServerInfoClass::getServerInfo(char* bufferStr){
+/*
+ * Compiles and returns the serverInfo json object, containing
+ * deviceName, networkName, networkSaved, and, if connected but
+ * network not saved, the list of stored networks.
+ */
+String WebServerInfoClass::getServerInfo(){
   StaticJsonDocument<JsonResponseSize_> info;
   info["deviceName"] = deviceName_;
   info["networkName"] = currentNetwork;
-  serializeJson(info, bufferStr, JsonResponseSize_);
+  info["networkSaved"] = networkSaved;
+  if(!networkSaved & (currentNetwork.length() > 0)){
+    JsonArray storedNetworksJSON = info.createNestedArray("storedNetworks");
+    listStoredNetworks(storedNetworksJSON);
+  }
+  String responseObj;
+  serializeJson(info, responseObj);
+  return responseObj;
 }
 
 /*
@@ -65,7 +77,7 @@ bool WebServerInfoClass::saveServerInfo(){
   info["deviceName"] = deviceName_;
   JsonObject storedNetworksJSON = info.createNestedObject("storedNetworks");
   if (storedNetworksJSON.isNull()){return false;}
-  Serial.print("Max number of networks"); Serial.println(N_networks);
+  Serial.print("number of networks:\t"); Serial.println(N_networks);
   if(N_networks > MaxStoredNetworks_){ Serial.println("max stored networks reached"); return 0; }
 
   // I did try to keep this DRY, but couldn't manage it
@@ -119,9 +131,9 @@ bool WebServerInfoClass::loadServerInfo(){
 
 /*
  * If ssid has a length, currentNetwork is updated and the new network is saved to local storage.
- * @return 1 if network is saved, 0 if storedNetworks is full, -1 if no network is passed
+ * @return 1 if network is saved, 0 if storedNetworks is full, -1 if no SSID was given
  */
-int WebServerInfoClass::updateNetwork(String ssid, String pwd){
+bool WebServerInfoClass::updateNetwork(String ssid, String pwd){
   currentNetwork = ssid;
   if(ssid.length() == 0) { return -1;}
   return saveNetwork(ssid, pwd);
@@ -134,9 +146,25 @@ int WebServerInfoClass::updateNetwork(String ssid, String pwd){
 int WebServerInfoClass::saveNetwork(String ssid, String pwd){
   // saves a new network
   addToStoredNetworks(ssid, pwd);
-  return saveServerInfo();
+  networkSaved = saveServerInfo();
+  return networkSaved;
 }
 
+void WebServerInfoClass::removeNetworks(String ssidList){
+  Serial.println("removeNetworks()");
+  unsigned int lastBreak = 0;
+  for (unsigned int i = 0; i < ssidList.length(); i++){
+    if(ssidList[i] == ","[0]){
+      removeFromStoredNetworks(ssidList.substring(lastBreak, i));
+      lastBreak = i + 1;
+    }
+  }
+  removeFromStoredNetworks(ssidList.substring(lastBreak));
+}
+
+bool WebServerInfoClass::isNetworkSaved(){
+  return networkSaved;
+}
 WebServerInfoClass WebServerData;
 
 // -----------------------------------------------------------------------------------------------------
@@ -194,16 +222,28 @@ void WebServerInfoClass::printStoredNetworks(){
  * todo: refactor this whole process to pass a reference to the server
  * @returns the storage ojbect in full as a string.
  */
-String WebServerInfoClass::storageFullResponseObj(){
+String WebServerInfoClass::storageFullResponseObj(String connectedNetwork){
   StaticJsonDocument<JsonResponseSize_> responseInfo;
   responseInfo["error"] = "storageFull";
+  responseInfo["connectedNetwork"] = connectedNetwork;
   JsonArray storedNetworksJSON = responseInfo.createNestedArray("storedNetworks");
-  // I did try to keep this DRY, but couldn't manage it
-  std::map<String, String>::iterator itr;
-  for (itr = storedNetworks.begin(); itr != storedNetworks.end(); ++itr){
-    storedNetworksJSON.add(itr->first);
-  }
+  listStoredNetworks(storedNetworksJSON);
   String responseObj;
   serializeJson(responseInfo, responseObj);
   return responseObj;
+}
+
+/* 
+ * Adds the stored networks to a JsonArray pointer. Array must be created
+ * before calling the function.
+ * eg:  JsonArray array = jsonObject.createNestedArray("storedNetworks");
+ *      listStoredNetworks(array);
+ */
+void WebServerInfoClass::listStoredNetworks(const JsonArray& storedNetworksList){
+  // I did try to keep this loop DRY, but unfortunately it remains sopping wet.
+  // TODO convert this quasi-dictionary into its own class. lets autoclave this bitch.
+  std::map<String, String>::iterator itr;
+  for (itr = storedNetworks.begin(); itr != storedNetworks.end(); ++itr){
+    storedNetworksList.add(itr->first);
+  }
 }

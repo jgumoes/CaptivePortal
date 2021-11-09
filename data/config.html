@@ -4,44 +4,7 @@
     
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <title>WiFi Config</title>
-    <style>
-      * {font-family: Helvetica;}
-
-      body {margin: 3%;background-color: lightblue;}
-      .h {text-align: center;margin-bottom: -20px;}
-
-      .wrong {margin-left: 10%;color:red;font-size: 20px;}
-      .radios {display: block;position: relative;padding-left: 35px;/*padding for the radio button labels*/
-        margin-bottom: 12px;  /* vertical padding between buttons */
-        margin-left: 5px;   /* left padding */
-        cursor: pointer;font-size: 22px;}
-
-      .radios input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
-      .checkmark {position: absolute;top: 0;left: 0;height: 26px;width: 26px;background-color: #eee;border-radius: 50%; }   /* Create a custom radio button */
-      .radios:hover input ~ .checkmark {background-color: #ccc;} /* On mouse-over, add a grey background color */
-      .radios input:checked ~ .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
-      .checkmark:after {content: '';position: absolute;display: none;} /* Create the indicator (the dot/circle - hidden when not checked) */
-      .radios input:checked ~ .checkmark:after {display: block;}  /* Show the indicator (dot/circle) when checked */
-      .radios .checkmark:after {top: 9px;left: 9px;width: 8px;height: 8px;border-radius: 50%;background: white;}  /* Style the indicator (dot/circle) */
-      .connect {letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;background-color: #4CAF50;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
-      .namechange_label_container { 
-        margin-right:auto;display: inline-block;}
-      .namechange_label {text-align: right; display: inline-block; max-width: 215px; float: right;}
-      .enter_name{float:left;}
-      @media only screen and (max-width: 440px) {
-        .namechange_label_container{max-width: 215px}
-        /* .enter_name{float:ri;} */
-      }
-
-      .show {opacity: 1; background: none;}
-      .hide {opacity: 20%; background: darkslategrey;}
-
-      /* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
-      #pwd, #dev_name {width: 80%;margin-left: 10%;margin-top: 10px;}
-
-      .SubName {margin-top: 10px;}
-      .NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
-    </style>
+    <link rel="stylesheet" href="config.css">
   </head>
 <body style='max-width: 580px;'>
 
@@ -52,18 +15,22 @@
     You are <span id=connection_status></span></p>
 
   <form id="wifiSaveForm" class='show'>
+    <span style="display: none;" class="wrong errSpan" id="saveNetworkWarning" onclick="showDelNetPopup(true); showDeletePopupButton(false);"> 
+      Network Not Saved:
+      Please forget a network to save the current one
+    </span>
   	<h3 class='h'>Available Networks:</h3>
     <h4 class='h'>(refresh if any are missing)</h4>
     <br><br>
 
-    <div id="network_list">
+    <div id="network_list" class="saveNetworkList">
       <div style="text-align: center;">Scanning for networks...</div>
     </div>
         
     <br>
     <div class='password'>
-        <h3 class='h' for='pwd'>Enter Password:</h3><br>
-          <span id=errSpan></span>
+        <h3 class='h pwd' for='pwd'>Enter Password:</h3>
+          <span id=errSpan class=wrong></span>
         <input type='text' id='pwd' name='pwd'><br><br>
         <div>
           <div style='display:inline-block;'>
@@ -95,6 +62,95 @@
 </form>
 <br><br>
 
+<div id="deleteNetworksPopup" class="modal">
+  <!-- Modal content -->
+  <div class="closePopupContainer">
+    <div class="closePopup" onclick="showDelNetPopup(false); showDeletePopupButton(true);">&times;</div>
+  </div>
+  <form id="wifiForgetForm">
+    <p>The storage is too full to save any more networks!</p>
+    <p>Select which networks to forget:</p>
+    <div id="deleteNetworkList"></div>
+    <span id=errSpan class=wrong></span>
+    <input id="deleteButton" type="button" class="delete" value="Forget Networks" onclick="postWifiForgetForm()">
+  </form>
+</div>
+
+<script> // deal with the deleteNetworksPopup here
+function showDelNetPopup(show){
+  document.getElementById("deleteNetworksPopup").style.display = show ? "block" : "none";
+  fillErrorMessage('none', '#wifiForgetForm');
+}
+
+function showDeletePopupButton(show){
+  document.querySelector(".wrong#saveNetworkWarning").style.display = show? "block" : "none";
+}
+
+function deleteNetworksPopup(data){
+    showDelNetPopup(true);
+    const chosenSSID = networkBeingAttempted();
+    const delListDiv = document.getElementById("deleteNetworkList");
+    var networkList = data["storedNetworks"].filter((n) => {
+      console.log(n)
+      if(n !== chosenSSID){ return n }
+    });
+    networkListConstructor(networkList, delListDiv, "checkbox", "delNetList");
+  }
+
+  function postWifiForgetForm(){
+    fillErrorMessage('none', '#wifiForgetForm');
+    const formData = new FormData();
+    let forgetNetworkList = [];
+    // todo note: this query selector should be the basis of a generic form-filling function
+    document.querySelectorAll("#wifiForgetForm .ssidButton input:checked").forEach((x) => {forgetNetworkList.push(x.value)});
+    if (forgetNetworkList.length === 0){
+      fillErrorMessage('noNetworksSelected', '#wifiForgetForm');
+      return false;
+    }
+    formData.append('forget', forgetNetworkList);
+    showDelNetPopup(false);
+    waitingForFormResponse(true, 'wifiSaveForm');
+    postForm(formData, 3, route = '/wififorget', errorID="#saveNetworkWarning");
+  }
+
+  let DeleteNetworksPopup = class {
+    // TODO: replace all popup function calls with those in this class
+    constructor () {
+      this.networkList; // TODO: do I actually need to store the state as a class variable if it's already stored in HTML?
+    }
+    set setNetworkList(list){
+      // TODO: this needs to be called everywhere maybe i dunno
+      this.networkList = list;
+    }
+
+    showErrorButton(show){
+      // TODO: replaces showDeletePopupButton
+      document.querySelector(".wrong#saveNetworkWarning").style.display = show? "block" : "none";
+    }
+
+    showPopup(show=true, data=none, showErrorButton=false) {
+      // TODO: replaces showDelNetPopup, deleteNetworksPopup
+      // Opens and closes the popup. If data isn't given, it's
+      // presumed that fillPopup has already been called elsewhere
+      if (data !== none){fillPopup(data)}
+      document.getElementById("deleteNetworksPopup").style.display = show ? "block" : "none";
+      fillErrorMessage('none', '#wifiForgetForm');
+      showErrorButton(!show && showErrorButton); // hide button if show is true, otherwise set to showErrorButton
+    }
+
+    fillPopup(data){
+      const chosenSSID = networkBeingAttempted();
+      const delListDiv = document.getElementById("deleteNetworkList");
+      var networkList = data["storedNetworks"].filter((n) => {
+        console.log(n)
+        if(n !== chosenSSID){ return n }
+      });
+      networkListConstructor(networkList, delListDiv, "checkbox", "delNetList");
+    }
+  }
+  
+</script>
+
 <script> // form POSTs will get handled here
 
   document.getElementById('pwd').addEventListener('keypress', (e) => handleFormEnter(e, 'pwd'))
@@ -117,12 +173,19 @@
     hideOrShowForm(form, waiting)
     for (el of form.elements){ el.disabled = waiting }
   }
+
+  function networkBeingAttempted(){
+    // it might be a good idea to put the post stuff into a class,
+    // so that this function isn't needed
+    return document.getElementById('wifiSaveForm').elements.ssid.value
+  }
   
   function postWifiSaveForm(){
     // this COULD be refactored into a generic postForm function, but should it?
+    // A: sort of.
     const formData = new FormData();
     const wifiForm = document.getElementById('wifiSaveForm')
-    const chosenSSID = wifiForm.elements.ssid.value
+    const chosenSSID = networkBeingAttempted();
     if(chosenSSID === ""){
       fillErrorMessage("noNetworkSelected")
       return false;
@@ -134,21 +197,23 @@
     postForm(formData);
   }
 
-  function postForm(formData, reattempt = true, route = '/wifisave'){
+  function postForm(formData, reattempt = 3, route = '/wifisave', errorID="#wifiSaveForm"){
     // reattempt signals whether this function should be called again
     // if the fetch attempt fails
     fetch(route, {method: 'POST', body: formData})
       .then(result => result.json())
       .then(data => {
-        fillErrorMessage(data.error);
-        fillConnectionStatus({'networkName': data.error == "none" && formData.get('ssid')});
+        fillErrorMessage(data.error, errorID);
+        const dataTrue = ["none", "storageFull"]; // a check to make sure a bad attempt isn't filled as being successfull
+        fillConnectionStatus({'networkName': dataTrue.includes(data.error) && networkBeingAttempted()}); // keep this statement as is, incase some dickhead calls their network "none"
         waitingForFormResponse(false, 'wifiSaveForm');
+        if(data.error === "storageFull"){ deleteNetworksPopup(data);} //TODO update with correct function call
       })
       .catch(error => {
-        if(reattempt){postForm(formData, false, route)}
+        if(reattempt > 1){postForm(formData, reattempt - 1, route)}
         else{
           waitingForFormResponse(false, 'wifiSaveForm');
-          fillErrorMessage("other");
+          fillErrorMessage("other", errorID);
           console.log(error);
         }
       })
@@ -182,7 +247,7 @@
   }
 
   function fillConnectionStatus(flags){
-    const {networkName} = flags;
+    const {networkName, networkSaved} = flags;
     console.log('fillConnectionStatus', networkName);
     var connectionStatusSpan = document.getElementById('connection_status')
     if (!networkName){
@@ -190,23 +255,25 @@
     }
     else{
       connectionStatusSpan.innerText = `connected to ${networkName}`
+      if(!networkSaved){showDeletePopupButton(true)} // TODO: update with correct call
     }
   }
 
-  function fillErrorMessage(result){
+  function fillErrorMessage(result, formID = "#wifiSaveForm"){
     // The function formally known as fillWrongPassword. Fills the error message
     // maybe convert this into a pop-up? https://www.w3schools.com/howto/howto_js_popup.asp
-    var errorMessageSpan = document.getElementById('errSpan')
+    var errorMessageSpan = document.querySelector(`${formID} #errSpan`);
 
-    if (result === "none"){ errorMessageSpan.innerHTML = ""; return 1; }
     const htmlOptions = {
+      "none": "",
       'wrongPass': "Wrong Password",
       'networkLost': "Lost the Network",
       'other': "Server Error",
       'noNetworkSelected': "Please Select a Network Above",
-      "storageFull": "Network not Saved: Device Storage is Full" // todo: replace with a modal and remove
+      'noNetworksSelected': "Please Select one or more Networks Above",
+      "storageFull": "Network not Saved: Device Storage is Full"
     }
-    errorMessageSpan.innerHTML = `<label for='pwd' class=wrong>${htmlOptions[result]}</label><br>`
+    errorMessageSpan.innerText = htmlOptions[result]
   }
 
   function fillFlaggedElements(flags){
@@ -229,30 +296,46 @@
     console.log('ssids: ' + data);
     var networkDiv = document.getElementById('network_list')
     var ssids = data.network_list
-    var disabled = ``
+    var disabled = false;
     if(ssids.length === 0){
       ssids = ["No Networks Found"]
-      disabled = `disabled=true `
+      disabled = true;
       disableConnectButton();
     }
 
-    networkDiv.innerHTML = "";
+    networkListConstructor(ssids, networkDiv, 'radio', 'saveNetList');
 
-    for (ssid of ssids){
-      html = `<label class='radios'>${ssid}` +
-        `<input id="${ssid}" type='radio' name='ssid' value=\"${ssid}\" ` +
-        // if ssid == last_ssid then page += 'checked="true"' end
-        disabled +
-        `required>` +
-        `<span class='checkmark'></span>` +
-      `</label>`
-      // console.log(html);
-      // networkDiv.innerHTML = html;
-      networkDiv.insertAdjacentHTML("afterbegin", html)
-    }
+    if(disabled){document.getElementsByName("ssid")[0].disabled = true;}
+    // todo: check last attempted network (if needed for refreshing the networks)
 
     var attempted_network = data.attempted_network
     document.getElementById(attempted_network).checked = true
+  }
+
+  function setLabelCheck(element){
+    if(element.type === "radio"){
+      for (el of document.querySelectorAll("input[type=radio]")){
+        el.parentElement.id = "not_chosen";
+      }
+    }
+    const parent = element.parentElement;
+    console.log('setLabelCheck:', parent);
+    parent.id = element.checked ? "chosen" : "not_chosen";
+  }
+
+  function networkListConstructor(ssids, targetDiv, type, className){
+    targetDiv.innerHTML = "";
+    check = type == "radio" ? "" : "X";
+    for (ssid of ssids){
+      const cam_name = `${ssid.replaceAll(/\W/ig, "")}_${className}`;
+      html = `<div class="ssidButton ${className}"">` + 
+        `<input id="${cam_name}" type=${type} name='ssid' value=\"${ssid}\" required>` +
+        `<label for="${cam_name}">` +
+        `<div class='checkmark'><div class='checked'>${check}</div></div>` +
+        `${ssid}</label>` + 
+        `</div>`
+     targetDiv.insertAdjacentHTML("afterbegin", html);
+    }
   }
 
   function disableConnectButton(){

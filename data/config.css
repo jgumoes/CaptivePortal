@@ -1,0 +1,152 @@
+:root{
+  --ssidButton-padding: 5px;
+}
+
+* {font-family: Helvetica;}
+
+body {margin: 3%;background-color: lightblue;}
+.h {text-align: center;margin-bottom: -20px;}
+
+.wrong {margin: 10px 10%; color:red;font-size: 20px;display: block; text-align: center;}
+
+.h.pwd {margin-bottom: 0;}
+/* network lists */
+
+#deleteNetworkList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ssidButton custom checkmarks */
+.ssidButton {
+  display: flex;
+  align-items: center;
+  position: relative;/*padding for the radio button labels*/
+  margin: 12px 15px;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.ssidButton label{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: var(--ssidButton-padding);
+  line-height: 1.3;
+  /* margin-left: 10px; */
+  z-index: 1;
+}
+
+.ssidButton input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
+
+/* create checkmark */
+.ssidButton .checkmark { margin-right: 10px; margin-left: 5px; flex-shrink: 0; height: 26px;width: 26px; }   /* Create a custom radio button */
+.saveNetList label .checkmark { border-radius: 50%; background-color: #eee;}
+.delNetList label .checkmark { border-radius: 0.2em; background-color: white; border: 1px solid black;}
+
+.saveNetList .checkmark .checked {
+  border-radius: 50%;
+  height: 8px;
+  width: 8px;
+  margin: 9px;
+  background-color: white;
+}
+
+.saveNetList:hover label .checkmark {background-color: #ccc;}
+.delNetList:hover label .checkmark {background-color: rgba(246, 4, 25, 0.1);}
+.saveNetList input:checked + label .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
+
+/* show and hide checkmark */
+.ssidButton input:checked + .borderBox {opacity: 1;}
+.ssidButton input:not(:checked) + label .checkmark .checked {opacity: 0;}
+
+/* show and hide border */
+#deleteNetworkList .ssidButton input:checked + label {
+  border-style: inset;
+  border-radius: 13px;
+}
+.saveNetworkList .ssidButton input:checked + label {
+  border-style: outset;
+  border-radius: 13px;
+}
+
+.delNetList .checkmark .checked {
+  max-width: fit-content;
+  margin-inline: auto;
+  padding-left: 1px;
+  color: #e40000;
+}
+
+/* submit buttons */
+.connect, .delete {
+  letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
+
+.connect { background-color: #4CAF50;}
+
+.delete { background-color: #ff0000bf;}
+
+.namechange_label_container { 
+  margin-right:auto;display: inline-block;}
+.namechange_label {text-align: right; display: inline-block; max-width: 215px;}
+.enter_name{float:left;}
+@media only screen and (max-width: 440px) {
+  .namechange_label_container{max-width: 215px}
+  /* .enter_name{float:ri;} */
+}
+
+.show {opacity: 1; background: none;}
+.hide {opacity: 20%; background: darkslategrey;}
+
+/* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
+#pwd, #dev_name {width: 80%;margin-inline: 10%;}
+
+.SubName {margin-top: 10px;}
+.NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
+
+/* deleteNetworkPopups modal stuff */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px;
+  padding-inline: 10%; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 80%;
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+#wifiForgetForm {
+  background-color: #fefefe;
+  border-radius: 10px;
+  padding: 20px;
+  padding-top: 0;
+  border: 1px solid #888;
+  /* width: 80%; */
+}
+
+/* The Close Button */
+.closePopup {
+  color: #aaaaaa;
+  background-color: white;
+  font-size: 28px;
+  font-weight: bold;
+  height: 1em;
+  line-height: 0.9em;
+  width: 1em;
+  text-align: center;
+  border-radius: 50%;
+  padding: 5px;
+  float:right;
+  transform: translateY(-2em);
+}
+
+.closePopup:hover,
+.closePopup:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}

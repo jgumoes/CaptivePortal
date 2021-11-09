@@ -48,11 +48,23 @@ void handleWifiSave(){
   WebServerData.printStoredNetworks();
 }
 
+void handleWifiForget(){
+  Serial.println("handleWifiForget()");
+  String forgetList = server.arg("forget"); // comma-seperated string
+  if (forgetList.length() > 0){
+    String responseObj = forgetWifi(forgetList);
+    server.send(200, "application/json", responseObj);
+  }
+  else{
+    server.send(400);
+  }
+  server.client().stop();
+}
+
 void handleServerInfo() {
   WebServerData.deviceName();
   Serial.println("handleServerInfo");
-  char responseObj[WebServerData.infoResponseSize()];
-  WebServerData.getServerInfo(responseObj);
+  String responseObj = WebServerData.getServerInfo();
   Serial.print(responseObj);
   server.send(200, "application/json", responseObj);
 }
@@ -83,6 +95,7 @@ void setupWebServer () {
   server.on("/captive_portal", handleCaptivePortal);
   server.on("/scan_networks", sendScanNetworks);
   server.on("/wifisave", handleWifiSave);
+  server.on("/wififorget", handleWifiForget);
   server.on("/server_info", handleServerInfo);
   server.on("/favicon.ico", [](){ server.send(404);});
 
