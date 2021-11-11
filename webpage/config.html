@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>WiFi Config</title>
+    <link rel="stylesheet" href="config.css">
+  </head>
+<body style='max-width: 580px;'>
+
+<h1 class='h'>WiFi Config</h1>
+<br>
+<p class='p'>
+  <div style='text-align:center;'><span id=device_name_change /></div>
+    You are <span id=connection_status></span></p>
+
+  <form id="wifiSaveForm" class='show'>
+    <span style="display: none;" class="wrong errSpan" id="saveNetworkWarning" onclick="showDelNetPopup(true); showDeletePopupButton(false);"> 
+      Network Not Saved:
+      Please forget a network to save the current one
+    </span>
+  	<h3 class='h'>Available Networks:</h3>
+    <h4 class='h'>(refresh if any are missing)</h4>
+    <br><br>
+
+    <div id="network_list" class="saveNetworkList">
+      <div style="text-align: center;">Scanning for networks...</div>
+    </div>
+        
+    <br>
+    <div class='password'>
+        <h3 class='h pwd' for='pwd'>Enter Password:</h3>
+          <span id=errSpan class=wrong></span>
+        <input type='text' id='pwd' name='pwd'><br><br>
+        <div>
+          <div style='display:inline-block;'>
+            <input type="checkbox" id='checkbox' checked=true onclick="show_password()">
+          </div>
+          <div style='display:inline-block;' id='checkboxLabel' onclick="show_password()">
+            Hide Password?
+          </div>
+        </div>
+    </div>
+    <br>
+    
+    <input id='connectButton' type='button' onclick="postWifiSaveForm()" class='connect' value='Connect'>
+    
+  </form>
+
+<form id="changeNameForm" action='/change_name' method='POST'>
+  <hr/>
+  <p class='h3'>Change device name from <b><span id=device_name /></b>?</p>
+  <div class='p'>
+    <div class='namechange_label_container'>
+      <span class='namechange_label enter_name'>Enter new device name below</span>
+      <span class='namechange_label'>&nbsp(100 characters maximum):</span>
+    </div>
+  </div>
+  <input type='text' id='dev_name' name='dev_name' maxlength='100' placeholder='Enter new device name'>
+  <br>
+  <input type='submit' class='SubName' value='Save New Name'>
+</form>
+<br><br>
+
+<div id="deleteNetworksPopup" class="modal">
+  <!-- Modal content -->
+  <div class="closePopupContainer">
+    <div class="closePopup" onclick="showDelNetPopup(false); showDeletePopupButton(true);">&times;</div>
+  </div>
+  <form id="wifiForgetForm">
+    <p>The storage is too full to save any more networks!</p>
+    <p>Select which networks to forget:</p>
+    <div id="deleteNetworkList"></div>
+    <span id=errSpan class=wrong></span>
+    <input id="deleteButton" type="button" class="delete" value="Forget Networks" onclick="postWifiForgetForm()">
+  </form>
+</div>
+
+<script src="deleteNetworksPopup.js"></script>
+<script src="postForm.js"></script>
+<script src="fillHTML.js"></script>
+<script src="fetchNetworkList.js"></script>
+
+</body>
+</html>
