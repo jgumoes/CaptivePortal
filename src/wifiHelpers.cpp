@@ -42,6 +42,8 @@ class lastConnectionResult {
           return makeResponseObj("none");
         case WL_NO_SSID_AVAIL:
           return makeResponseObj("networkLost");
+        case WL_WRONG_PASSWORD:
+          return makeResponseObj("wrongPass");
         case WL_CONNECT_FAILED:
           return makeResponseObj("wrongPass");
         case -1:  // timeout is presumed due to a wrong password
@@ -59,7 +61,7 @@ int attemptConnection(String& newSSID, String& newPassword){
   Serial.println(WiFi.status());
   // catch identical repeat requests.
   int previousResult = lastConn.lastConnRes;
-  if (lastConn.ssid == newSSID && lastConn.password == newPassword && (previousResult == 3 || previousResult == 4 || previousResult == NETWORK_STORAGE_FULL )){
+  if (lastConn.ssid == newSSID && lastConn.password == newPassword && (previousResult == 3 || previousResult == 4 || previousResult == NETWORK_STORAGE_FULL || previousResult == 6 )){
     Serial.println("credentials already attempted");
     return lastConn.lastConnRes;
   }

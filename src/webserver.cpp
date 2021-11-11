@@ -42,6 +42,7 @@ void handleWifiSave(){
   // there should be a check for if a password for the ssid is already stored
   // bool connRes = connectWifi(ssid, password) == 3 ? true : false;
   String responseObj = connectWifi(ssid, password);
+  Serial.print("sending response: "); Serial.println(responseObj);
   server.send(200, "application/json", responseObj);
   server.client().stop(); // Stop is needed because we sent no content length
   Serial.println("#########################################");
