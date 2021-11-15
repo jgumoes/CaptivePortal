@@ -4,17 +4,17 @@
 """
 import regex as re
 
+def notImported(page):
+  print("missing module: file not minified")
+
+try:
+  from rjsmin import jsmin
+except ModuleNotFoundError:
+  jsmin = notImported
+
 def openFile(filename: str):
   filePath = f".\\webpage\\{filename}"
   return open(filePath).read()
-
-# def listLinkedFiles(rel, webpage):
-#   # TODO: refactor to return a tuple of lists [rel, href]
-#   # return re.findall(f"<link rel=\"(.*)\" href=\"(.*)\">", webpage)
-#   return re.findall(f"<link rel=\"{rel}\" href=\"(.*)\">", webpage)
-
-# def insertLinkedFile(stringifiedPage: str, rel, href, webpage):
-#   return re.sub(f"<link rel=\"{rel}\" href=\"{href}\">", stringifiedPage, webpage)
 
 def replaceStyles(webpage: str):
   links = re.findall(f"<link rel=[\'\"]stylesheet[\'\"] href=\"(.*)\">", webpage) # find the stylesheet links
@@ -27,6 +27,7 @@ def replaceJavascript(webpage: str):
   scripts = re.findall(f"<script src=[\'\"](.*)[\'\"]>[.\s]*</script>", webpage)
   for script in scripts:
     jsFile = f"<script>\n{openFile(script)}\n</script>"
+    jsFile = jsmin(jsFile)
     webpage = re.sub(f"<script src=[\'\"]{script}[\'\"]>[.\s]*</script>", jsFile, webpage)
   return webpage
 

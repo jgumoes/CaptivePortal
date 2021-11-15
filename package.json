@@ -1,0 +1,27 @@
+{
+  "name": "captiveportal",
+  "version": "1.0.0",
+  "description": "This is a captive portal to allow a user to upload wifi network credentials to an ESP8266/ESP32 microcontroller. The microcontroller creates a wireless network on boot, which a user can connect to and enter network details.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^8.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jgumoes/CaptivePortal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jgumoes/CaptivePortal/issues"
+  },
+  "homepage": "https://github.com/jgumoes/CaptivePortal#readme"
+}

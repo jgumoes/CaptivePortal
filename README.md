@@ -6,6 +6,22 @@ This is probably the simplest, most intuitive method possible for a layperson to
 
 This project is intended to function as a library, being something that can be dropped into any ESP project. It started off as something that I can shove [Sinric Pro](https://sinric.pro/index.html) into for multiple smart-home projects I want to make. There's another project though, a Medicine Alarm Clock, that will likely need to talk to a server and will need internet connectivity to do so. It will recieve the network details through an accompanying app, so interacting with the portal through API calls has become an important requirement. I think this might be similar to how chromecast devices are connected to the internet.
 
+# Usage
+
+## Editing the Webpage
+
+The files for the webpage are in the folder `webpage`. If you want to edit anything, edit it in that folder. To upload, install the python packages and run the compiling script:
+
+```
+$pip install -r requirements.txt
+$python compileWebpage.py
+```
+
+This will minify and compile the files into a single HTML file `data/config.html`. However, it will not uglify the javascript, so you should use eslint to make sure you don't miss any semi-colons. 
+
+*note: the python packages are optional, but the webpage won't be minified without them.*
+*the javascript packages are also optional, I totally understand if you don't want node_modules, just don't forget the semi-colons if you edit the js files.*
+
 # Test Portal
 There is a Ruby Test Server for making changes to config.html. Once the html file is known to work, the server-side code is implemented on the microcontroller in C++.
 ## running the test server
