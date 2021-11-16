@@ -1,233 +1,4 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <title>WiFi Config</title>
-    <style>:root{
-  --ssidButton-padding: 5px;
-}
-
-* {font-family: Helvetica;}
-
-body {margin: 3%;background-color: lightblue;}
-.h {text-align: center;margin-bottom: -20px;}
-
-.wrong {margin: 10px 10%; color:red;font-size: 20px;display: block; text-align: center;}
-
-.h.pwd {margin-bottom: 0;}
-/* network lists */
-
-#deleteNetworkList {
-  display: flex;
-  flex-direction: column;
-}
-
-/* ssidButton custom checkmarks */
-.ssidButton {
-  display: flex;
-  align-items: center;
-  position: relative;/*padding for the radio button labels*/
-  margin: 12px 15px;
-  cursor: pointer;
-  font-size: 22px;
-}
-
-.ssidButton label{
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: var(--ssidButton-padding);
-  line-height: 1.3;
-  /* margin-left: 10px; */
-  z-index: 1;
-}
-
-.ssidButton input {position: absolute;opacity: 0;cursor: pointer;} /* Hide the browser's default radio button */
-
-/* create checkmark */
-.ssidButton .checkmark { margin-right: 10px; margin-left: 5px; flex-shrink: 0; height: 26px;width: 26px; }   /* Create a custom radio button */
-.saveNetList label .checkmark { border-radius: 50%; background-color: #eee;}
-.delNetList label .checkmark { border-radius: 0.2em; background-color: white; border: 1px solid black;}
-
-.saveNetList .checkmark .checked {
-  border-radius: 50%;
-  height: 8px;
-  width: 8px;
-  margin: 9px;
-  background-color: white;
-}
-
-.saveNetList:hover label .checkmark {background-color: #ccc;}
-.delNetList:hover label .checkmark {background-color: rgba(246, 4, 25, 0.1);}
-.saveNetList input:checked + label .checkmark {background-color: #2196F3;} /* When the radio button is checked, add a blue background */
-
-/* show and hide checkmark */
-.ssidButton input:checked + .borderBox {opacity: 1;}
-.ssidButton input:not(:checked) + label .checkmark .checked {opacity: 0;}
-
-/* show and hide border */
-#deleteNetworkList .ssidButton input:checked + label {
-  border-style: inset;
-  border-radius: 13px;
-}
-.saveNetworkList .ssidButton input:checked + label {
-  border-style: outset;
-  border-radius: 13px;
-}
-
-.delNetList .checkmark .checked {
-  max-width: fit-content;
-  margin-inline: auto;
-  padding-left: 1px;
-  color: #e40000;
-}
-
-/* submit buttons */
-.connect, .delete {
-  letter-spacing: 0.1em;font-size: 15px;margin-left: 12.5%;border: none;color: white;padding: 13px 32px;text-decoration: none;text-align: center;width: 75%;cursor: pointer;}
-
-.connect { background-color: #4CAF50;}
-
-.delete { background-color: #ff0000bf;}
-
-.namechange_label_container { 
-  margin-right:auto;display: inline-block;}
-.namechange_label {text-align: right; display: inline-block; max-width: 215px;}
-.enter_name{float:left;}
-@media only screen and (max-width: 440px) {
-  .namechange_label_container{max-width: 215px}
-  /* .enter_name{float:ri;} */
-}
-
-.show {opacity: 1; background: none;}
-.hide {opacity: 20%; background: darkslategrey;}
-
-/* input[type='text'] {width: 80%;margin-left: 10%;margin-top: 10px;} */
-#pwd, #dev_name {width: 80%;margin-inline: 10%;}
-
-.SubName {margin-top: 10px;}
-.NameChange {letter-spacing: 0.1em;font-size: 15px;color: #259b29;margin-top: -5px;margin-bottom: -10px;}
-
-/* deleteNetworkPopups modal stuff */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  padding-top: 100px;
-  padding-inline: 10%; /* Location of the box */
-  left: 0;
-  top: 0;
-  width: 80%;
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-#wifiForgetForm {
-  background-color: #fefefe;
-  border-radius: 10px;
-  padding: 20px;
-  padding-top: 0;
-  border: 1px solid #888;
-  /* width: 80%; */
-}
-
-/* The Close Button */
-.closePopup {
-  color: #aaaaaa;
-  background-color: white;
-  font-size: 28px;
-  font-weight: bold;
-  height: 1em;
-  line-height: 0.9em;
-  width: 1em;
-  text-align: center;
-  border-radius: 50%;
-  padding: 5px;
-  float:right;
-  transform: translateY(-2em);
-}
-
-.closePopup:hover,
-.closePopup:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}</style>
-  </head>
-<body style='max-width: 580px;'>
-
-<h1 class='h'>WiFi Config</h1>
-<br>
-<p class='p'>
-  <div style='text-align:center;'><span id=device_name_change /></div>
-    You are <span id=connection_status></span></p>
-
-  <form id="wifiSaveForm" class='show'>
-    <span style="display: none;" class="wrong errSpan" id="saveNetworkWarning" onclick="showDelNetPopup(true); showDeletePopupButton(false);"> 
-      Network Not Saved:
-      Please forget a network to save the current one
-    </span>
-  	<h3 class='h'>Available Networks:</h3>
-    <h4 class='h'>(refresh if any are missing)</h4>
-    <br><br>
-
-    <div id="network_list" class="saveNetworkList">
-      <div style="text-align: center;">Scanning for networks...</div>
-    </div>
-        
-    <br>
-    <div class='password'>
-        <h3 class='h pwd' for='pwd'>Enter Password:</h3>
-          <span id=errSpan class=wrong></span>
-        <input type='text' id='pwd' name='pwd'><br><br>
-        <div>
-          <div style='display:inline-block;'>
-            <input type="checkbox" id='checkbox' checked=true onclick="show_password()">
-          </div>
-          <div style='display:inline-block;' id='checkboxLabel' onclick="show_password()">
-            Hide Password?
-          </div>
-        </div>
-    </div>
-    <br>
-    
-    <input id='connectButton' type='button' onclick="postWifiSaveForm()" class='connect' value='Connect'>
-    
-  </form>
-
-<form id="changeNameForm" action='/change_name' method='POST'>
-  <hr/>
-  <p class='h3'>Change device name from <b><span id=device_name /></b>?</p>
-  <div class='p'>
-    <div class='namechange_label_container'>
-      <span class='namechange_label enter_name'>Enter new device name below</span>
-      <span class='namechange_label'>&nbsp(100 characters maximum):</span>
-    </div>
-  </div>
-  <input type='text' id='dev_name' name='dev_name' maxlength='100' placeholder='Enter new device name'>
-  <br>
-  <input type='submit' class='SubName' value='Save New Name'>
-</form>
-<br><br>
-
-<div id="deleteNetworksPopup" class="modal">
-  <!-- Modal content -->
-  <div class="closePopupContainer">
-    <div class="closePopup" onclick="showDelNetPopup(false); showDeletePopupButton(true);">&times;</div>
-  </div>
-  <form id="wifiForgetForm">
-    <p>The storage is too full to save any more networks!</p>
-    <p>Select which networks to forget:</p>
-    <div id="deleteNetworkList"></div>
-    <span id=errSpan class=wrong></span>
-    <input id="deleteButton" type="button" class="delete" value="Forget Networks" onclick="postWifiForgetForm()">
-  </form>
-</div>
-
-<script>function showDelNetPopup(show){document.getElementById("deleteNetworksPopup").style.display=show?"block":"none";fillErrorMessage("none","#wifiForgetForm");}
+<!DOCTYPE html><html> <head><meta name=viewport content="width=device-width, initial-scale=1"><title>WiFi Config</title><style>:root{--ssidButton-padding:5px}*{font-family:Helvetica}body{margin:3%;background-color:lightblue}.h{text-align:center;margin-bottom:-20px}.wrong{margin:10px 10%;color:red;font-size:20px;display:block;text-align:center}.h.pwd{margin-bottom:0}#deleteNetworkList{display:flex;flex-direction:column}.ssidButton{display:flex;align-items:center;position:relative;margin:12px 15px;cursor:pointer;font-size:22px}.ssidButton label{width:100%;display:flex;align-items:center;padding:var(--ssidButton-padding);line-height:1.3;z-index:1}.ssidButton input{position:absolute;opacity:0;cursor:pointer}.ssidButton .checkmark{margin-right:10px;margin-left:5px;flex-shrink:0;height:26px;width:26px}.saveNetList label .checkmark{border-radius:50%;background-color:#eee}.delNetList label .checkmark{border-radius:.2em;background-color:white;border:1px solid black}.saveNetList .checkmark .checked{border-radius:50%;height:8px;width:8px;margin:9px;background-color:white}.saveNetList:hover label .checkmark{background-color:#ccc}.delNetList:hover label .checkmark{background-color:rgba(246,4,25,0.1)}.saveNetList input:checked+label .checkmark{background-color:#2196f3}.ssidButton input:checked+.borderBox{opacity:1}.ssidButton input:not(:checked)+label .checkmark .checked{opacity:0}#deleteNetworkList .ssidButton input:checked+label{border-style:inset;border-radius:13px}.saveNetworkList .ssidButton input:checked+label{border-style:outset;border-radius:13px}.delNetList .checkmark .checked{max-width:fit-content;margin-inline:auto;padding-left:1px;color:#e40000}.connect,.delete{letter-spacing:.1em;font-size:15px;margin-left:12.5%;border:0;color:white;padding:13px 32px;text-decoration:none;text-align:center;width:75%;cursor:pointer}.connect{background-color:#4caf50}.delete{background-color:#ff0000bf}.namechange_label_container{margin-right:auto;display:inline-block}.namechange_label{text-align:right;display:inline-block;max-width:215px}.enter_name{float:left}@media only screen and (max-width:440px){.namechange_label_container{max-width:215px}}.show{opacity:1;background:0}.hide{opacity:20%;background:darkslategrey}#pwd,#dev_name{width:80%;margin-inline:10%}.SubName{margin-top:10px}.NameChange{letter-spacing:.1em;font-size:15px;color:#259b29;margin-top:-5px;margin-bottom:-10px}.modal{display:none;position:fixed;z-index:1;padding-top:100px;padding-inline:10%;left:0;top:0;width:80%;height:100%;overflow:auto;background-color:#000;background-color:rgba(0,0,0,0.4)}#wifiForgetForm{background-color:#fefefe;border-radius:10px;padding:20px;padding-top:0;border:1px solid #888}.closePopup{color:#aaa;background-color:white;font-size:28px;font-weight:bold;height:1em;line-height:.9em;width:1em;text-align:center;border-radius:50%;padding:5px;float:right;transform:translateY(-2em)}.closePopup:hover,.closePopup:focus{color:#000;text-decoration:none;cursor:pointer}</style></head> <body style="max-width: 580px;"> <h1 class=h>WiFi Config</h1> <br> <p class=p> <div style=text-align:center;><span id=device_name_change /></div> You are <span id=connection_status></span></p> <form id=wifiSaveForm class=show> <span style="display: none;" class="wrong errSpan" id=saveNetworkWarning onclick="showDelNetPopup(true); showDeletePopupButton(false);"> Network Not Saved: Please forget a network to save the current one </span> <h3 class=h>Available Networks:</h3> <h4 class=h>(refresh if any are missing)</h4> <br><br> <div id=network_list class=saveNetworkList> <div style="text-align: center;">Scanning for networks...</div> </div> <br> <div class=password> <h3 class="h pwd" for=pwd>Enter Password:</h3> <span id=errSpan class=wrong></span> <input type=text id=pwd name=pwd><br><br> <div> <div style=display:inline-block;> <input type=checkbox id=checkbox checked=true onclick=show_password()> </div> <div style=display:inline-block; id=checkboxLabel onclick=show_password()> Hide Password? </div> </div> </div> <br> <input id=connectButton type=button onclick=postWifiSaveForm() class=connect value=Connect> </form> <form id=changeNameForm action=/change_name method=POST> <hr> <p class=h3>Change device name from <b><span id=device_name /></b>?</p> <div class=p> <div class=namechange_label_container> <span class="namechange_label enter_name">Enter new device name below</span> <span class=namechange_label>&nbsp(100 characters maximum):</span> </div> </div> <input type=text id=dev_name name=dev_name maxlength=100 placeholder="Enter new device name"> <br> <input type=submit class=SubName value="Save New Name"> </form> <br><br> <div id=deleteNetworksPopup class=modal> <!-- Modal content --> <div class=closePopupContainer> <div class=closePopup onclick="showDelNetPopup(false); showDeletePopupButton(true);">&times;</div> </div> <form id=wifiForgetForm> <p>The storage is too full to save any more networks!</p> <p>Select which networks to forget:</p> <div id=deleteNetworkList></div> <span id=errSpan class=wrong></span> <input id=deleteButton type=button class=delete value="Forget Networks" onclick=postWifiForgetForm()> </form> </div> <script>function showDelNetPopup(show){document.getElementById("deleteNetworksPopup").style.display=show?"block":"none";fillErrorMessage("none","#wifiForgetForm");}
 function showDeletePopupButton(show){document.querySelector(".wrong#saveNetworkWarning").style.display=show?"block":"none";}
 function deleteNetworksPopup(data){showDelNetPopup(true);const chosenSSID=networkBeingAttempted();const delListDiv=document.getElementById("deleteNetworkList");var networkList=data["storedNetworks"].filter((n)=>{console.log(n);if(n!==chosenSSID){return n;}});networkListConstructor(networkList,delListDiv,"checkbox","delNetList");}
 function postWifiForgetForm(){fillErrorMessage("none","#wifiForgetForm");const formData=new FormData();let forgetNetworkList=[];document.querySelectorAll("#wifiForgetForm .ssidButton input:checked").forEach((x)=>{forgetNetworkList.push(x.value);});if(forgetNetworkList.length===0){fillErrorMessage("noNetworksSelected","#wifiForgetForm");return false;}
@@ -237,8 +8,7 @@ set setNetworkList(list){this.networkList=list;}
 showErrorButton(show){document.querySelector(".wrong#saveNetworkWarning").style.display=show?"block":"none";}
 showPopup(show=true,data=null,showErrorButton=false){if(data!==null){fillPopup(data);}
 document.getElementById("deleteNetworksPopup").style.display=show?"block":"none";fillErrorMessage("none","#wifiForgetForm");showErrorButton(!show&&showErrorButton);}
-fillPopup(data){const chosenSSID=networkBeingAttempted();const delListDiv=document.getElementById("deleteNetworkList");var networkList=data["storedNetworks"].filter((n)=>{console.log(n);if(n!==chosenSSID){return n;}});networkListConstructor(networkList,delListDiv,"checkbox","delNetList");}};</script>
-<script>document.getElementById("pwd").addEventListener("keypress",(e)=>handleFormEnter(e,"pwd"));function handleFormEnter(event,elementID){const keyCode=event.code;const postForms={"pwd":postWifiSaveForm};if(keyCode==="Enter"){event.preventDefault();postForms[elementID]();return false;}
+fillPopup(data){const chosenSSID=networkBeingAttempted();const delListDiv=document.getElementById("deleteNetworkList");var networkList=data["storedNetworks"].filter((n)=>{console.log(n);if(n!==chosenSSID){return n;}});networkListConstructor(networkList,delListDiv,"checkbox","delNetList");}};</script> <script>document.getElementById("pwd").addEventListener("keypress",(e)=>handleFormEnter(e,"pwd"));function handleFormEnter(event,elementID){const keyCode=event.code;const postForms={"pwd":postWifiSaveForm};if(keyCode==="Enter"){event.preventDefault();postForms[elementID]();return false;}
 return true;}
 function waitingForFormResponse(waiting,formID){const form=document.getElementById(formID);if(waiting){fillErrorMessage("none");}
 hideOrShowForm(form,waiting);for(var el of form.elements){el.disabled=waiting;}}
@@ -246,8 +16,7 @@ function networkBeingAttempted(){return document.getElementById("wifiSaveForm").
 function postWifiSaveForm(){const formData=new FormData();const wifiForm=document.getElementById("wifiSaveForm");const chosenSSID=networkBeingAttempted();if(chosenSSID===""){fillErrorMessage("noNetworkSelected");return false;}
 formData.append("ssid",chosenSSID);formData.append("pwd",wifiForm.elements.pwd.value);console.log("formData",formData);waitingForFormResponse(true,"wifiSaveForm");postForm(formData);}
 function postForm(formData,reattempt=3,route="/wifisave",errorID="#wifiSaveForm"){fetch(route,{method:"POST",body:formData}).then(result=>result.json()).then(data=>{fillErrorMessage(data.error,errorID);const dataTrue=["none","storageFull"];fillConnectionStatus({"networkName":dataTrue.includes(data.error)&&networkBeingAttempted()});waitingForFormResponse(false,"wifiSaveForm");if(data.error==="storageFull"){deleteNetworksPopup(data);}}).catch(error=>{if(reattempt>1){postForm(formData,reattempt-1,route);}
-else{waitingForFormResponse(false,"wifiSaveForm");fillErrorMessage("other",errorID);console.log(error);}});}</script>
-<script>function hideOrShowForm(form,hide){if(hide){form.setAttribute("class","hide");}
+else{waitingForFormResponse(false,"wifiSaveForm");fillErrorMessage("other",errorID);console.log(error);}});}</script> <script>function hideOrShowForm(form,hide){if(hide){form.setAttribute("class","hide");}
 else{form.setAttribute("class","show");}}
 async function getServerInfo(){fetch("/server_info",{method:"GET"}).then(result=>result.json()).then(data=>fillFlaggedElements(data));}
 function fillNameChange(flags){const{deviceName,nameChange}=flags;var nameChangeSpan=document.getElementById("device_name_change");if(nameChange===true){nameChangeSpan.insertAdjacentHTML("afterbegin",`<b class='NameChange'>Device name changed to <em>${deviceName}</em></b><br>`);}}
@@ -256,8 +25,7 @@ function fillConnectionStatus(flags){const{networkName,networkSaved}=flags;conso
 else{connectionStatusSpan.innerText=`connected to ${networkName}`;if(!networkSaved){showDeletePopupButton(true);}}}
 function fillErrorMessage(result,formID="#wifiSaveForm"){var errorMessageSpan=document.querySelector(`${formID} #errSpan`);const htmlOptions={"none":"","wrongPass":"Wrong Password","networkLost":"Lost the Network","other":"Server Error","noNetworkSelected":"Please Select a Network Above","noNetworksSelected":"Please Select one or more Networks Above","storageFull":"Network not Saved: Device Storage is Full"};errorMessageSpan.innerText=htmlOptions[result];}
 function fillFlaggedElements(flags){console.log(flags);fillDeviceName(flags);fillConnectionStatus(flags);}
-getServerInfo();</script>
-<script>async function getNetworkList(){fetch("/scan_networks",{method:"GET"}).then(result=>result.json()).then(data=>fillNetworkList(data));}
+getServerInfo();</script> <script>async function getNetworkList(){fetch("/scan_networks",{method:"GET"}).then(result=>result.json()).then(data=>fillNetworkList(data));}
 function fillNetworkList(data){console.log("ssids: "+data);var networkDiv=document.getElementById("network_list");var ssids=data.network_list;var disabled=false;if(ssids.length===0){ssids=["No Networks Found"];disabled=true;disableConnectButton();}
 networkListConstructor(ssids,networkDiv,"radio","saveNetList");if(disabled){document.getElementsByName("ssid")[0].disabled=true;}
 var attempted_network=data.attempted_network;document.getElementById(attempted_network).checked=true;}
@@ -265,7 +33,4 @@ function setLabelCheck(element){if(element.type==="radio"){for(var el of documen
 const parent=element.parentElement;console.log("setLabelCheck:",parent);parent.id=element.checked?"chosen":"not_chosen";}
 function networkListConstructor(ssids,targetDiv,type,className){targetDiv.innerHTML="";var check=type=="radio"?"":"X";for(var ssid of ssids){const cam_name=`${ssid.replaceAll(/\W/ig, "")}_${className}`;var html=`<div class="ssidButton ${className}"">`+`<input id="${cam_name}" type=${type} name='ssid' value="${ssid}" required>`+`<label for="${cam_name}">`+`<div class='checkmark'><div class='checked'>${check}</div></div>`+`${ssid}</label>`+"</div>";targetDiv.insertAdjacentHTML("afterbegin",html);}}
 function disableConnectButton(){var connectButton=document.getElementById("connectButton");connectButton.disabled=true;connectButton.style.background="#bdbdbd";}
-getNetworkList();function show_password(){const checkbox=document.getElementById("checkbox");const checkboxTypes={true:"text",false:"password"};const checkboxLabels={true:"Hide Password?",false:"Show Password?"};checkbox.checked=!checkbox.checked;document.getElementById("pwd").type=checkboxTypes[checkbox.checked];document.getElementById("checkboxLabel").innerText=checkboxLabels[checkbox.checked];}</script>
-
-</body>
-</html>
+getNetworkList();function show_password(){const checkbox=document.getElementById("checkbox");const checkboxTypes={true:"text",false:"password"};const checkboxLabels={true:"Hide Password?",false:"Show Password?"};checkbox.checked=!checkbox.checked;document.getElementById("pwd").type=checkboxTypes[checkbox.checked];document.getElementById("checkboxLabel").innerText=checkboxLabels[checkbox.checked];}</script> </body> </html>
